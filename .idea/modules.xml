@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Bankomatas/Bankomatas.iml" filepath="$PROJECT_DIR$/Bankomatas/Bankomatas.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Biudzetas/Biudzetas.iml" filepath="$PROJECT_DIR$/Biudzetas/Biudzetas.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/CodeAcademy.iml" filepath="$PROJECT_DIR$/.idea/CodeAcademy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Tankas/Tankas.iml" filepath="$PROJECT_DIR$/Tankas/Tankas.iml" />
+    </modules>
+  </component>
+</project>
