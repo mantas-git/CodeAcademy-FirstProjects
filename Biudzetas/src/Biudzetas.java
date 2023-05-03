@@ -168,6 +168,33 @@ public class Biudzetas {
     }
 
     public void fillData(){
+        incomeStatements.add(new IncomeStatement(incomeStCounter, LocalDateTime.parse("2023-05-01 12:15", dateTimeFormatter), 8, true, 1000.00,"darbo uzmokestis"));
+        incomeStCounter++;
+        incomeStatements.add(new IncomeStatement(incomeStCounter, LocalDateTime.parse("2023-05-01 13:12", dateTimeFormatter), 7, false, 3.15,"uz lipdukus"));
+        incomeStCounter++;
+        incomeStatements.add(new IncomeStatement(incomeStCounter, LocalDateTime.parse("2023-05-02 18:00", dateTimeFormatter), 9, false, 50.00,"sukapotos malkos"));
+        incomeStCounter++;
+        incomeStatements.add(new IncomeStatement(incomeStCounter, LocalDateTime.parse("2023-05-03 08:03", dateTimeFormatter), 0, true, 20.00,"uz pavezima"));
+        incomeStCounter++;
+        incomeStatements.add(new IncomeStatement(incomeStCounter, LocalDateTime.parse("2023-05-03 12:15", dateTimeFormatter), 7, true, 5.5,"uz laida"));
+        incomeStCounter++;
+        incomeStatements.add(new IncomeStatement(incomeStCounter, LocalDateTime.parse("2023-05-03 17:00", dateTimeFormatter), 9, false, 25.00,"pakeiciau plokste"));
+        incomeStCounter++;
+        System.out.println("IncoemStatments loaded...");
+
+        outgoingStatements.add(new OutgoingStatement(outgoingStCounter, LocalDateTime.parse("2023-05-01 12:30", dateTimeFormatter), 4, true, 4.50, "pietūs"));
+        outgoingStCounter++;
+        outgoingStatements.add(new OutgoingStatement(outgoingStCounter, LocalDateTime.parse("2023-05-01 17:30", dateTimeFormatter), 1, false, 111.32, "maistas"));
+        outgoingStCounter++;
+        outgoingStatements.add(new OutgoingStatement(outgoingStCounter, LocalDateTime.parse("2023-05-02 18:00", dateTimeFormatter), 2, false, 120.46, "automobilio remontas"));
+        outgoingStCounter++;
+        outgoingStatements.add(new OutgoingStatement(outgoingStCounter, LocalDateTime.parse("2023-05-03 08:03", dateTimeFormatter), 6, true, 32.68, "vitaminiai"));
+        outgoingStCounter++;
+        outgoingStatements.add(new OutgoingStatement(outgoingStCounter, LocalDateTime.parse("2023-05-03 12:15", dateTimeFormatter), 5, true, 25.80, "mikseris"));
+        outgoingStCounter++;
+        outgoingStatements.add(new OutgoingStatement(outgoingStCounter, LocalDateTime.parse("2023-05-03 17:00", dateTimeFormatter), 3, false, 68.00, "batai"));
+        outgoingStCounter++;
+        System.out.println("OutgoingStatements loaded...");
 
     }
 }

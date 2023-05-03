@@ -1,29 +1,31 @@
 import java.time.LocalDateTime;
 
 public class IncomeStatement {
-    private double amount;
+    private int id = 1;
     private LocalDateTime processDate;
     private int category;
     private boolean transferedToTheBank;
+    private double amount;
     private String additionalInfo;
 
     public IncomeStatement() {
     }
 
-    public IncomeStatement(double amount, LocalDateTime processDate, int category, boolean transferedToTheBank, String additionalInfo) {
-        this.amount = amount;
+    public IncomeStatement(int id, LocalDateTime processDate, int category, boolean transferedToTheBank, double amount, String additionalInfo) {
+        this.id = id;
         this.processDate = processDate;
         this.category = category;
         this.transferedToTheBank = transferedToTheBank;
+        this.amount = amount;
         this.additionalInfo = additionalInfo;
     }
 
-    public double getAmount() {
-        return amount;
+    public int getId() {
+        return id;
     }
 
-    public void setAmount(double amount) {
-        this.amount = amount;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public LocalDateTime getProcessDate() {
@@ -42,12 +44,20 @@ public class IncomeStatement {
         this.category = category;
     }
 
-    public boolean getTransferedToTheBank() {
+    public boolean isTransferedToTheBank() {
         return transferedToTheBank;
     }
 
     public void setTransferedToTheBank(boolean transferedToTheBank) {
         this.transferedToTheBank = transferedToTheBank;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
     }
 
     public String getAdditionalInfo() {
@@ -60,7 +70,7 @@ public class IncomeStatement {
 
     @Override
     public String toString() {
-        return "IncomeStatement{" +
+        return  "IncomeStatement{" +
                 "amount=" + amount +
                 ", processDate=" + processDate +
                 ", category='" + category + '\'' +
@@ -68,4 +78,5 @@ public class IncomeStatement {
                 ", additionalInfo='" + additionalInfo + '\'' +
                 '}';
     }
+
 }
