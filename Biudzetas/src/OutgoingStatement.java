@@ -3,14 +3,14 @@ import java.time.LocalDateTime;
 public class OutgoingStatement {
     private double amount;
     private LocalDateTime processDate;
-    private String category;
-    private String paymentMethod;
+    private int category;
+    private boolean paymentMethod;
     private String additionalInfo;
 
     public OutgoingStatement() {
     }
 
-    public OutgoingStatement(double amount, LocalDateTime processDate, String category, String paymentMethod, String additionalInfo) {
+    public OutgoingStatement(double amount, LocalDateTime processDate, int category, boolean paymentMethod, String additionalInfo) {
         this.amount = amount;
         this.processDate = processDate;
         this.category = category;
@@ -34,19 +34,19 @@ public class OutgoingStatement {
         this.processDate = processDate;
     }
 
-    public String getCategory() {
+    public int getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(int category) {
         this.category = category;
     }
 
-    public String getPaymentMethod() {
+    public boolean getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(String paymentMethod) {
+    public void setPaymentMethod(boolean paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 

@@ -1,79 +1,173 @@
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Biudzetas {
-    private IncomeStatement[] incomeStatements = new IncomeStatement[100];
+    private ArrayList<IncomeStatement> incomeStatements = new ArrayList<>();
     int incomeStCounter = 0;
-    private OutgoingStatement[] outgoingStatements = new OutgoingStatement[100];
+    private ArrayList<OutgoingStatement> outgoingStatements = new ArrayList<>();
     int outgoingStCounter = 0;
 
     Scanner scannerB = new Scanner(System.in);
 
+    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
     public Biudzetas() {
     }
 
-    public IncomeStatement[] getIncomeStatements() {
+//    public IncomeStatement[] getIncomeStatements() {
+//        return incomeStatements;
+//    }
+//
+//    public void setIncomeStatements(IncomeStatement[] incomeStatements) {
+//        this.incomeStatements = incomeStatements;
+//    }
+//
+//    public OutgoingStatement[] getOutgoingStatements() {
+//        return outgoingStatements;
+//    }
+//
+//    public void setOutgoingStatements(OutgoingStatement[] outgoingStatements) {
+//        this.outgoingStatements = outgoingStatements;
+//    }
+
+
+    public ArrayList<IncomeStatement> getIncomeStatements() {
         return incomeStatements;
     }
 
-    public void setIncomeStatements(IncomeStatement[] incomeStatements) {
+    public void setIncomeStatements(ArrayList<IncomeStatement> incomeStatements) {
         this.incomeStatements = incomeStatements;
     }
 
-    public OutgoingStatement[] getOutgoingStatements() {
+    public ArrayList<OutgoingStatement> getOutgoingStatements() {
         return outgoingStatements;
     }
 
-    public void setOutgoingStatements(OutgoingStatement[] outgoingStatements) {
+    public void setOutgoingStatements(ArrayList<OutgoingStatement> outgoingStatements) {
         this.outgoingStatements = outgoingStatements;
     }
 
-    public void pridetiPajamuIrasa(){
+    public int getIncomeStCounter() {
+        return incomeStCounter;
+    }
+
+    public int getOutgoingStCounter() {
+        return outgoingStCounter;
+    }
+
+    public void addIncomeStatement(){
         IncomeStatement incomeStatement = new IncomeStatement();
-        System.out.println("Įvesti pajamų sumą: ");
-        double sum = Double.parseDouble(scannerB.nextLine());
-        incomeStatement.setProcessDate(LocalDateTime.now());
-        incomeStatement.setAmount(sum);
-        System.out.println("Įvesti pajamų kategoriją: ");
-        incomeStatement.setCategory(scannerB.nextLine());
-        System.out.println("Ar pinigai pervesti į banką? ");
-        incomeStatement.setTransferedToTheBank(scannerB.nextLine());
-        System.out.println("Papildoma infomracija: ");
-        incomeStatement.setAdditionalInfo(scannerB.nextLine());
-        incomeStatements[incomeStCounter] = incomeStatement;
+        String type = "pajamų";
+        incomeStatement.setProcessDate(addDateTime(type));
+        incomeStatement.setCategory(addCategory(type));
+        incomeStatement.setAmount(addAmount(type));
+        System.out.println("Ar pinigai pervesti į banką? (T/N) ");
+        incomeStatement.setTransferedToTheBank(addTransactionType());
+        incomeStatement.setAdditionalInfo(addComment());
+        //incomeStatements[incomeStCounter] = incomeStatement;
+        incomeStatements.add(incomeStatement);
         incomeStCounter++;
         System.out.println();
     }
 
-    public void gautiPajamuIrasa(){
-        System.out.println("gautiPajamuIrasa");
-        for(int i = 0; i < incomeStCounter; i++){
-            System.out.println(incomeStatements[i]);
-        }
-
-    }
-
-    public void pridetiIslaiduIrasa(){
+    public void addOutgoingStatement(){
         OutgoingStatement outgoingStatement = new OutgoingStatement();
-        System.out.print("Įvesti išlaidų sumą: ");
-        double sum = Double.parseDouble(scannerB.nextLine());
-        outgoingStatement.setProcessDate(LocalDateTime.now());
-        outgoingStatement.setAmount(sum);
-        System.out.print("Įvesti pajamų kategoriją: ");
-        outgoingStatement.setCategory(scannerB.nextLine());
-        System.out.print("Mokėjimas grynais ar kortele?  ");
-        outgoingStatement.setPaymentMethod(scannerB.nextLine());
-        System.out.print("Papildoma infomracija: ");
-        outgoingStatement.setAdditionalInfo(scannerB.nextLine());
-        outgoingStatements[incomeStCounter] = outgoingStatement;
+        String type = "išlaidų";
+        outgoingStatement.setProcessDate(addDateTime(type));
+        outgoingStatement.setCategory(addCategory(type));
+        outgoingStatement.setAmount(addAmount(type));
+        System.out.println("Ar atsiskaityta grynais ? (T/N) ");
+        outgoingStatement.setPaymentMethod(addTransactionType());
+        outgoingStatement.setAdditionalInfo(addComment());
+        //outgoingStatements[outgoingStCounter] = outgoingStatement;
+        outgoingStatements.add(outgoingStatement);
         outgoingStCounter++;
     }
 
-    public void gautiIslaiduIrasa(){
-        System.out.println("gautiIslaiduIrasa");
-        for(int i = 0; i < outgoingStCounter; i++){
-            System.out.println(outgoingStatements[i]);
+    private LocalDateTime addDateTime(String type) {
+        System.out.println("Įvesti " + type + " datą ir laiką");
+        LocalDateTime dateTime;
+        while(true) {
+            try {
+                dateTime = LocalDateTime.parse(scannerB.nextLine(), dateTimeFormatter);
+                break;
+            } catch (DateTimeParseException ex) {
+                System.out.println("Nuskaitymo klaida. Įveskite operacijos laiką (yyyy-MM-dd HH:mm).");
+            }
         }
+        return dateTime;
+    }
+
+    private int addCategory(String type) {
+        System.out.println("Įvesti " + type + " kategoriją: ");
+        System.out.println("1 - " + Categories.FOOD.getCategorie()
+                + "; 2 - " + Categories.TRANSPORT.getCategorie()
+                + "; 3 - " + Categories.CLOTHING.getCategorie()
+                + "; 4 - " + Categories.ENTERTAIMENT.getCategorie()
+                + "; 5 - " + Categories.HOUSEHOLD.getCategorie()
+                + "; 6 - " + Categories.HEALTH.getCategorie()
+                + "; 7 - " + Categories.SALES.getCategorie()
+                + "; 8 - " + Categories.MAIN_JOB.getCategorie()
+                + "; 9 - " + Categories.EXTRA_JOB.getCategorie()
+                + "; 0 - " + Categories.OTHER.getCategorie()
+                + ".");
+        int category;
+        while(true) {
+            try {
+                category = Integer.parseInt(scannerB.nextLine());
+                if(category > 0 && category < 8) {
+                    break;
+                }
+                else{
+                    System.out.println("Tokia kategorija nerasta. Įveskite kategorijos numerį.");
+                }
+            } catch (NumberFormatException ex) {
+                System.out.println("Nuskaitymo klaida. Įveskite kategorijos numerį.");
+            }
+        }
+        return category;
+    }
+
+    private double addAmount(String type) {
+        System.out.println("Įvesti " + type + " sumą: ");
+        double sum;
+        while(true) {
+            try {
+                sum = Double.parseDouble(scannerB.nextLine());
+                break;
+            } catch (NumberFormatException ex) {
+                System.out.println("Nuskaitymo klaida. Įveskite sumą, centus atskiriant tašku (.) .");
+            }
+        }
+        return sum;
+    }
+
+    private boolean addTransactionType() {
+        boolean trueFalse;
+        while(true){
+            String entered = scannerB.nextLine();
+            if(entered.equalsIgnoreCase("T") || entered.equalsIgnoreCase("Y") || entered.equals("1") ){
+                trueFalse = true;
+                break;
+            }
+            if(entered.equalsIgnoreCase("N") || entered.equals("0") ){
+                trueFalse = false;
+                break;
+            }
+            System.out.println("Nuskaitymo klaida. Įveskite tinkamą atsakymą.");
+        }
+        return trueFalse;
+    }
+
+    private String addComment() {
+        System.out.println("Papildoma infomracija: ");
+        return scannerB.nextLine();
+    }
+
+    public void fillData(){
 
     }
 }

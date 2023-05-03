@@ -3,14 +3,14 @@ import java.time.LocalDateTime;
 public class IncomeStatement {
     private double amount;
     private LocalDateTime processDate;
-    private String category;
-    private String transferedToTheBank;
+    private int category;
+    private boolean transferedToTheBank;
     private String additionalInfo;
 
     public IncomeStatement() {
     }
 
-    public IncomeStatement(double amount, LocalDateTime processDate, String category, String transferedToTheBank, String additionalInfo) {
+    public IncomeStatement(double amount, LocalDateTime processDate, int category, boolean transferedToTheBank, String additionalInfo) {
         this.amount = amount;
         this.processDate = processDate;
         this.category = category;
@@ -34,19 +34,19 @@ public class IncomeStatement {
         this.processDate = processDate;
     }
 
-    public String getCategory() {
+    public int getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(int category) {
         this.category = category;
     }
 
-    public String getTransferedToTheBank() {
+    public boolean getTransferedToTheBank() {
         return transferedToTheBank;
     }
 
-    public void setTransferedToTheBank(String transferedToTheBank) {
+    public void setTransferedToTheBank(boolean transferedToTheBank) {
         this.transferedToTheBank = transferedToTheBank;
     }
 
