@@ -6,9 +6,9 @@ import java.util.Scanner;
 
 public class Biudzetas {
     private ArrayList<IncomeStatement> incomeStatements = new ArrayList<>();
-    int incomeStCounter = 0;
+    int incomeStCounter = 1;
     private ArrayList<OutgoingStatement> outgoingStatements = new ArrayList<>();
-    int outgoingStCounter = 0;
+    int outgoingStCounter = 1;
 
     Scanner scannerB = new Scanner(System.in);
 
@@ -17,25 +17,18 @@ public class Biudzetas {
     public Biudzetas() {
     }
 
-//    public IncomeStatement[] getIncomeStatements() {
-//        return incomeStatements;
-//    }
-//
-//    public void setIncomeStatements(IncomeStatement[] incomeStatements) {
-//        this.incomeStatements = incomeStatements;
-//    }
-//
-//    public OutgoingStatement[] getOutgoingStatements() {
-//        return outgoingStatements;
-//    }
-//
-//    public void setOutgoingStatements(OutgoingStatement[] outgoingStatements) {
-//        this.outgoingStatements = outgoingStatements;
-//    }
-
-
     public ArrayList<IncomeStatement> getIncomeStatements() {
         return incomeStatements;
+    }
+
+    public ArrayList<IncomeStatement> getIncomeStatements(LocalDateTime dateFrom, LocalDateTime dateTill, int category, boolean transactionType) {
+        ArrayList<IncomeStatement> filteredIncomeStatements = new ArrayList<>();
+        for(int i = 0; i < incomeStatements.size(); i++){
+            if(incomeStatements.get(i).getCategory() == category){
+                filteredIncomeStatements.add(incomeStatements.get(i));
+            }
+        }
+        return filteredIncomeStatements;
     }
 
     public void setIncomeStatements(ArrayList<IncomeStatement> incomeStatements) {
@@ -43,6 +36,10 @@ public class Biudzetas {
     }
 
     public ArrayList<OutgoingStatement> getOutgoingStatements() {
+        return outgoingStatements;
+    }
+
+    public ArrayList<OutgoingStatement> getOutgoingStatements(LocalDateTime dateFrom, LocalDateTime dateTill, int category, boolean transactionType) {
         return outgoingStatements;
     }
 
@@ -61,6 +58,7 @@ public class Biudzetas {
     public void addIncomeStatement(){
         IncomeStatement incomeStatement = new IncomeStatement();
         String type = "pajamų";
+        incomeStatement.setId(incomeStCounter);
         incomeStatement.setProcessDate(addDateTime(type));
         incomeStatement.setCategory(addCategory(type));
         incomeStatement.setAmount(addAmount(type));
@@ -73,9 +71,18 @@ public class Biudzetas {
         System.out.println();
     }
 
+    public void removeIncomeStatement(int deleteID){
+        incomeStatements.remove(deleteID);
+    }
+
+    public void removeOutgoingStatement(int deleteID){
+        outgoingStatements.remove(deleteID);
+    }
+
     public void addOutgoingStatement(){
         OutgoingStatement outgoingStatement = new OutgoingStatement();
         String type = "išlaidų";
+        outgoingStatement.setId(outgoingStCounter);
         outgoingStatement.setProcessDate(addDateTime(type));
         outgoingStatement.setCategory(addCategory(type));
         outgoingStatement.setAmount(addAmount(type));
@@ -88,7 +95,7 @@ public class Biudzetas {
     }
 
     private LocalDateTime addDateTime(String type) {
-        System.out.println("Įvesti " + type + " datą ir laiką");
+        System.out.printf("Įvesti %s datą ir laiką%n", type);
         LocalDateTime dateTime;
         while(true) {
             try {
@@ -102,7 +109,7 @@ public class Biudzetas {
     }
 
     private int addCategory(String type) {
-        System.out.println("Įvesti " + type + " kategoriją: ");
+        System.out.printf("Įvesti %s kategoriją: %n", type);
         System.out.println("1 - " + Categories.FOOD.getCategorie()
                 + "; 2 - " + Categories.TRANSPORT.getCategorie()
                 + "; 3 - " + Categories.CLOTHING.getCategorie()
@@ -118,7 +125,7 @@ public class Biudzetas {
         while(true) {
             try {
                 category = Integer.parseInt(scannerB.nextLine());
-                if(category > 0 && category < 8) {
+                if(category >= 0 && category < 10) {
                     break;
                 }
                 else{
@@ -132,7 +139,7 @@ public class Biudzetas {
     }
 
     private double addAmount(String type) {
-        System.out.println("Įvesti " + type + " sumą: ");
+        System.out.printf("Įvesti %s sumą: %n", type);
         double sum;
         while(true) {
             try {

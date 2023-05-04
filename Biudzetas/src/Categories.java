@@ -11,6 +11,12 @@ public enum Categories {
     OTHER("Kita");
 
     private String categorie;
+//    private int index;
+
+//    Categories(int index, String categorie){
+//        this.index = index;
+//        this.categorie = categorie;
+//    }
 
     Categories(String categorie){
         this.categorie = categorie;
@@ -19,4 +25,8 @@ public enum Categories {
     public String getCategorie(){
         return categorie;
     }
+
+//    public String getCategorie(int index){
+//        return categorie;
+//    }
 }

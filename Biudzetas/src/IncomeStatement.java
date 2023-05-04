@@ -1,7 +1,7 @@
 import java.time.LocalDateTime;
 
 public class IncomeStatement {
-    private int id = 1;
+    private int id;
     private LocalDateTime processDate;
     private int category;
     private boolean transferedToTheBank;
