@@ -1,3 +1,7 @@
+import RecordModels.IncomeRecord;
+import RecordModels.OutgoingRecord;
+import RecordModels.Record;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -5,101 +9,224 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Biudzetas {
-    private ArrayList<IncomeStatement> incomeStatements = new ArrayList<>();
-    int incomeStCounter = 1;
-    private ArrayList<OutgoingStatement> outgoingStatements = new ArrayList<>();
-    int outgoingStCounter = 1;
-
-    Scanner scannerB = new Scanner(System.in);
-
-    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private ArrayList<Record> records = new ArrayList<>();
+    private int counter;
+    private final Scanner scannerB = new Scanner(System.in);
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public Biudzetas() {
     }
 
-    public ArrayList<IncomeStatement> getIncomeStatements() {
-        return incomeStatements;
+    public ArrayList<Record> getRecords() {
+        return records;
     }
 
-    public ArrayList<IncomeStatement> getIncomeStatements(LocalDateTime dateFrom, LocalDateTime dateTill, int category, boolean transactionType) {
-        ArrayList<IncomeStatement> filteredIncomeStatements = new ArrayList<>();
-        for(int i = 0; i < incomeStatements.size(); i++){
-            if(incomeStatements.get(i).getCategory() == category){
-                filteredIncomeStatements.add(incomeStatements.get(i));
+    public ArrayList<Record> getRecords(LocalDateTime dateFrom, LocalDateTime dateTill, ArrayList<Integer> categories, int transactionType) {
+        ArrayList<Record> filteredRecords = new ArrayList<>();
+        for (Record record : records) {
+            if (record.getProcessDate().isAfter(dateFrom) && record.getProcessDate().isBefore(dateTill)) {
+                filteredRecords.add(record);
             }
         }
-        return filteredIncomeStatements;
+        filteredRecords = filterByTransaction(filteredRecords, transactionType);
+        if(categories.size() > 0) {
+            filteredRecords = filterByCategories(filteredRecords, categories);
+        }
+
+        return filteredRecords;
     }
 
-    public void setIncomeStatements(ArrayList<IncomeStatement> incomeStatements) {
-        this.incomeStatements = incomeStatements;
+    private ArrayList<Record> filterByCategories(ArrayList<Record> records, ArrayList<Integer> categories) {
+        ArrayList<Record> filteredRecords = new ArrayList<>();
+        for (Record record : records) {
+            for (Integer category : categories) {
+                if (record instanceof IncomeRecord && ((IncomeRecord) record).getIncomeCategory() == category) {
+                    filteredRecords.add(record);
+                }
+                if (record instanceof OutgoingRecord && ((OutgoingRecord) record).getOutgoingCategory() == category) {
+                    filteredRecords.add(record);
+                }
+            }
+        }
+        return filteredRecords;
     }
 
-    public ArrayList<OutgoingStatement> getOutgoingStatements() {
-        return outgoingStatements;
+    private ArrayList<Record> filterByTransaction(ArrayList<Record> records, int transactionType){
+        ArrayList<Record> filteredRecords = new ArrayList<>();
+        if(transactionType == 1){
+            for (Record record : records) {
+                if (record instanceof IncomeRecord && ((IncomeRecord) record).isTransferedToTheBank()) {
+                    filteredRecords.add(record);
+                }
+                if (record instanceof OutgoingRecord && ((OutgoingRecord) record).isPaymentMethod()) {
+                    filteredRecords.add(record);
+                }
+            }
+        }
+        if(transactionType == 2){
+            for (Record record : records) {
+                if (record instanceof IncomeRecord && !((IncomeRecord) record).isTransferedToTheBank()) {
+                    filteredRecords.add(record);
+                }
+                if (record instanceof OutgoingRecord && !((OutgoingRecord) record).isPaymentMethod()) {
+                    filteredRecords.add(record);
+                }
+            }
+        }
+        if(transactionType == 0){
+            filteredRecords = records;
+        }
+        return filteredRecords;
     }
 
-    public ArrayList<OutgoingStatement> getOutgoingStatements(LocalDateTime dateFrom, LocalDateTime dateTill, int category, boolean transactionType) {
-        return outgoingStatements;
+    public ArrayList<IncomeRecord> getIncomeRecords() {
+        ArrayList<IncomeRecord> incomeRecords = new ArrayList<>();
+        for (Record record : records) {
+            if (record instanceof IncomeRecord) {
+                incomeRecords.add((IncomeRecord) record);
+            }
+        }
+        return incomeRecords;
     }
 
-    public void setOutgoingStatements(ArrayList<OutgoingStatement> outgoingStatements) {
-        this.outgoingStatements = outgoingStatements;
+    public ArrayList<OutgoingRecord> getOutgoingRecords() {
+        ArrayList<OutgoingRecord> outgoingRecords = new ArrayList<>();
+        for (Record record : records) {
+            if (record instanceof OutgoingRecord) {
+                outgoingRecords.add((OutgoingRecord) record);
+            }
+        }
+        return outgoingRecords;
     }
 
-    public int getIncomeStCounter() {
-        return incomeStCounter;
-    }
-
-    public int getOutgoingStCounter() {
-        return outgoingStCounter;
-    }
-
-    public void addIncomeStatement(){
-        IncomeStatement incomeStatement = new IncomeStatement();
+    public void addIncomeStatement() {
         String type = "pajamų";
-        incomeStatement.setId(incomeStCounter);
-        incomeStatement.setProcessDate(addDateTime(type));
-        incomeStatement.setCategory(addCategory(type));
-        incomeStatement.setAmount(addAmount(type));
-        System.out.println("Ar pinigai pervesti į banką? (T/N) ");
-        incomeStatement.setTransferedToTheBank(addTransactionType());
-        incomeStatement.setAdditionalInfo(addComment());
-        //incomeStatements[incomeStCounter] = incomeStatement;
-        incomeStatements.add(incomeStatement);
-        incomeStCounter++;
+        IncomeRecord incomeRecord = new IncomeRecord(++counter, addDateTime(type, null), addCategory(type),
+                addAmount(type), addTransactionType("Ar pinigai pervesti į banką? (T/N) "), addComment());
+        addRecord(incomeRecord);
         System.out.println();
     }
 
-    public void removeIncomeStatement(int deleteID){
-        incomeStatements.remove(deleteID);
-    }
-
-    public void removeOutgoingStatement(int deleteID){
-        outgoingStatements.remove(deleteID);
-    }
-
-    public void addOutgoingStatement(){
-        OutgoingStatement outgoingStatement = new OutgoingStatement();
+    public void addOutgoingStatement() {
         String type = "išlaidų";
-        outgoingStatement.setId(outgoingStCounter);
-        outgoingStatement.setProcessDate(addDateTime(type));
-        outgoingStatement.setCategory(addCategory(type));
-        outgoingStatement.setAmount(addAmount(type));
-        System.out.println("Ar atsiskaityta grynais ? (T/N) ");
-        outgoingStatement.setPaymentMethod(addTransactionType());
-        outgoingStatement.setAdditionalInfo(addComment());
-        //outgoingStatements[outgoingStCounter] = outgoingStatement;
-        outgoingStatements.add(outgoingStatement);
-        outgoingStCounter++;
+        OutgoingRecord outgoingRecord = new OutgoingRecord(++counter, addDateTime(type, null), addCategory(type),
+                addAmount(type) * -1, addTransactionType("Ar atsiskaityta grynais ? (T/N) "), addComment());
+        addRecord(outgoingRecord);
     }
 
-    private LocalDateTime addDateTime(String type) {
-        System.out.printf("Įvesti %s datą ir laiką%n", type);
+    private void addRecord(Record record){
+        records.add(record);
+    }
+
+    public Record removeRecord(int deleteID) {
+        Record record = null;
+        for(int i = 0; i < records.size(); i++){
+            if(records.get(i).getId() == deleteID){
+                record = records.get(i);
+                records.remove(i);
+            }
+        }
+        return record;
+    }
+
+    public Record updateRecord(int updateID) {
+        Record record = null;
+        for (Record value : records) {
+            if (value.getId() == updateID) {
+                record = value;
+            }
+        }
+        if(record != null){
+            record = updateRecord(record);
+        }
+        return record;
+    }
+
+    public Record updateRecord(Record record){
+        String editOrSkip = " [1] - redaguoti";
+        String type = ((record instanceof IncomeRecord) ? "pajamų" : "išlaidų");
+        System.out.printf("Dabartinis įvestas laikas: %s %n" , record.getProcessDate().format(dateTimeFormatter));
+        System.out.println(editOrSkip);
+        String userChoise = scannerB.nextLine();
+        if(userChoise.equals("1")){
+            record.setProcessDate(addDateTime(type, null));
+        }
+
+        System.out.printf("Dabartinė %s kategorija %s %n", type, getRecordCategory(record));
+        System.out.println(editOrSkip);
+        userChoise = scannerB.nextLine();
+        if(userChoise.equals("1")){
+            int categoryId = addCategory(type);
+            if ((record instanceof IncomeRecord)) {
+                ((IncomeRecord) record).setIncomeCategory(categoryId);
+            } else {
+                ((OutgoingRecord) record).setOutgoingCategory(categoryId);
+            }
+        }
+
+        System.out.printf("Dabar atsiskaityta kortele/bankiniu pavdeimu: %s %n" , getRecordMethod(record));
+        System.out.println(editOrSkip);
+        userChoise = scannerB.nextLine();
+        if(userChoise.equals("1")){
+            if ((record instanceof IncomeRecord)) {
+                ((IncomeRecord) record).setTransferedToTheBank(addTransactionType("Įvesti naują reikšmę"));
+            } else {
+                ((OutgoingRecord) record).setPaymentMethod(addTransactionType("Įvesti naują reikšmę"));
+            }
+        }
+
+        System.out.printf("Dabartinė suma: %s %n" , record.getAmount());
+        System.out.println(editOrSkip);
+        userChoise = scannerB.nextLine();
+        if(userChoise.equals("1")){
+            if(record instanceof IncomeRecord) {
+                record.setAmount(addAmount(type));
+            }
+            else{
+                record.setAmount(addAmount(type) * -1);
+            }
+        }
+
+        System.out.printf("Dabartinis komentaras: %s %n" , record.getAdditionalInfo());
+        System.out.println(editOrSkip);
+        userChoise = scannerB.nextLine();
+        if(userChoise.equals("1")){
+            record.setAdditionalInfo(addComment());
+        }
+
+        return record;
+
+    }
+
+    private String getRecordCategory(Record record) {
+        int i = (record instanceof IncomeRecord) ? ((IncomeRecord) record).getIncomeCategory() : ((OutgoingRecord) record).getOutgoingCategory();
+        return Categories.values()[i].getCategorie();
+    }
+
+    private String getRecordMethod(Record record) {
+        boolean i = (record instanceof IncomeRecord) ? ((IncomeRecord) record).isTransferedToTheBank() : ((OutgoingRecord) record).isPaymentMethod();
+        return booleanInLT(i);
+    }
+
+    private LocalDateTime addDateTime(String type, String defaultTime) {
+        String defaultTimeString = (defaultTime == null) ? "dabartinis" : defaultTime;
+        System.out.printf("Įvesti %s datą ir laiką (praleisti, jei laikas %s)%n", type, defaultTimeString);
         LocalDateTime dateTime;
-        while(true) {
+        while (true) {
             try {
-                dateTime = LocalDateTime.parse(scannerB.nextLine(), dateTimeFormatter);
+                String string = scannerB.nextLine();
+                if(string.equals("")){
+                    if(defaultTime == null){
+                        dateTime = LocalDateTime.now();
+                    }
+                    else {
+                        dateTime = LocalDateTime.parse(defaultTime, dateTimeFormatter);;
+                    }
+                    break;
+                }
+                else{
+                    dateTime = LocalDateTime.parse(string, dateTimeFormatter);
+                }
                 break;
             } catch (DateTimeParseException ex) {
                 System.out.println("Nuskaitymo klaida. Įveskite operacijos laiką (yyyy-MM-dd HH:mm).");
@@ -110,38 +237,34 @@ public class Biudzetas {
 
     private int addCategory(String type) {
         System.out.printf("Įvesti %s kategoriją: %n", type);
-        System.out.println("1 - " + Categories.FOOD.getCategorie()
-                + "; 2 - " + Categories.TRANSPORT.getCategorie()
-                + "; 3 - " + Categories.CLOTHING.getCategorie()
-                + "; 4 - " + Categories.ENTERTAIMENT.getCategorie()
-                + "; 5 - " + Categories.HOUSEHOLD.getCategorie()
-                + "; 6 - " + Categories.HEALTH.getCategorie()
-                + "; 7 - " + Categories.SALES.getCategorie()
-                + "; 8 - " + Categories.MAIN_JOB.getCategorie()
-                + "; 9 - " + Categories.EXTRA_JOB.getCategorie()
-                + "; 0 - " + Categories.OTHER.getCategorie()
-                + ".");
+        printCategories();
         int category;
-        while(true) {
+        while (true) {
             try {
                 category = Integer.parseInt(scannerB.nextLine());
-                if(category >= 0 && category < 10) {
+                if (category > 0 && category < Categories.values().length + 1) {
                     break;
-                }
-                else{
+                } else {
                     System.out.println("Tokia kategorija nerasta. Įveskite kategorijos numerį.");
                 }
             } catch (NumberFormatException ex) {
                 System.out.println("Nuskaitymo klaida. Įveskite kategorijos numerį.");
             }
         }
-        return category;
+        return category - 1;
+    }
+
+    public void printCategories() {
+        for (int i = 0; i < Categories.values().length; i++) {
+            System.out.print((i + 1) + " - " + Categories.values()[i].getCategorie() + "; ");
+        }
+        System.out.println();
     }
 
     private double addAmount(String type) {
         System.out.printf("Įvesti %s sumą: %n", type);
         double sum;
-        while(true) {
+        while (true) {
             try {
                 sum = Double.parseDouble(scannerB.nextLine());
                 break;
@@ -149,18 +272,19 @@ public class Biudzetas {
                 System.out.println("Nuskaitymo klaida. Įveskite sumą, centus atskiriant tašku (.) .");
             }
         }
-        return sum;
+        return Math.abs(sum);
     }
 
-    private boolean addTransactionType() {
+    private boolean addTransactionType(String question) {
+        System.out.println(question);
         boolean trueFalse;
-        while(true){
+        while (true) {
             String entered = scannerB.nextLine();
-            if(entered.equalsIgnoreCase("T") || entered.equalsIgnoreCase("Y") || entered.equals("1") ){
+            if (entered.equalsIgnoreCase("T") || entered.equalsIgnoreCase("Y") || entered.equals("1")) {
                 trueFalse = true;
                 break;
             }
-            if(entered.equalsIgnoreCase("N") || entered.equals("0") ){
+            if (entered.equalsIgnoreCase("N") || entered.equals("0")) {
                 trueFalse = false;
                 break;
             }
@@ -174,34 +298,75 @@ public class Biudzetas {
         return scannerB.nextLine();
     }
 
-    public void fillData(){
-        incomeStatements.add(new IncomeStatement(incomeStCounter, LocalDateTime.parse("2023-05-01 12:15", dateTimeFormatter), 8, true, 1000.00,"darbo uzmokestis"));
-        incomeStCounter++;
-        incomeStatements.add(new IncomeStatement(incomeStCounter, LocalDateTime.parse("2023-05-01 13:12", dateTimeFormatter), 7, false, 3.15,"uz lipdukus"));
-        incomeStCounter++;
-        incomeStatements.add(new IncomeStatement(incomeStCounter, LocalDateTime.parse("2023-05-02 18:00", dateTimeFormatter), 9, false, 50.00,"sukapotos malkos"));
-        incomeStCounter++;
-        incomeStatements.add(new IncomeStatement(incomeStCounter, LocalDateTime.parse("2023-05-03 08:03", dateTimeFormatter), 0, true, 20.00,"uz pavezima"));
-        incomeStCounter++;
-        incomeStatements.add(new IncomeStatement(incomeStCounter, LocalDateTime.parse("2023-05-03 12:15", dateTimeFormatter), 7, true, 5.5,"uz laida"));
-        incomeStCounter++;
-        incomeStatements.add(new IncomeStatement(incomeStCounter, LocalDateTime.parse("2023-05-03 17:00", dateTimeFormatter), 9, false, 25.00,"pakeiciau plokste"));
-        incomeStCounter++;
+    public void fillData() {
+        records.add(new IncomeRecord(++counter, LocalDateTime.parse("2023-05-01 12:15", dateTimeFormatter), 6, 1000.00, true, "darbo uzmokestis"));
+        records.add(new IncomeRecord(++counter, LocalDateTime.parse("2023-05-01 13:12", dateTimeFormatter), 8, 3.15, false, "uz lipdukus"));
+        records.add(new IncomeRecord(++counter, LocalDateTime.parse("2023-05-02 18:00", dateTimeFormatter), 7, 50.00, false, "sukapotos malkos"));
+        records.add(new IncomeRecord(++counter, LocalDateTime.parse("2023-05-03 08:03", dateTimeFormatter), 9, 20.00, true, "uz pavezima"));
+        records.add(new IncomeRecord(++counter, LocalDateTime.parse("2023-05-03 12:15", dateTimeFormatter), 8, 5.5, true, "uz laida"));
+        records.add(new IncomeRecord(++counter, LocalDateTime.parse("2023-05-03 17:00", dateTimeFormatter), 7, 25.00, false, "pakeiciau plokste"));
         System.out.println("IncoemStatments loaded...");
 
-        outgoingStatements.add(new OutgoingStatement(outgoingStCounter, LocalDateTime.parse("2023-05-01 12:30", dateTimeFormatter), 4, true, 4.50, "pietūs"));
-        outgoingStCounter++;
-        outgoingStatements.add(new OutgoingStatement(outgoingStCounter, LocalDateTime.parse("2023-05-01 17:30", dateTimeFormatter), 1, false, 111.32, "maistas"));
-        outgoingStCounter++;
-        outgoingStatements.add(new OutgoingStatement(outgoingStCounter, LocalDateTime.parse("2023-05-02 18:00", dateTimeFormatter), 2, false, 120.46, "automobilio remontas"));
-        outgoingStCounter++;
-        outgoingStatements.add(new OutgoingStatement(outgoingStCounter, LocalDateTime.parse("2023-05-03 08:03", dateTimeFormatter), 6, true, 32.68, "vitaminiai"));
-        outgoingStCounter++;
-        outgoingStatements.add(new OutgoingStatement(outgoingStCounter, LocalDateTime.parse("2023-05-03 12:15", dateTimeFormatter), 5, true, 25.80, "mikseris"));
-        outgoingStCounter++;
-        outgoingStatements.add(new OutgoingStatement(outgoingStCounter, LocalDateTime.parse("2023-05-03 17:00", dateTimeFormatter), 3, false, 68.00, "batai"));
-        outgoingStCounter++;
+        records.add(new OutgoingRecord(++counter, LocalDateTime.parse("2023-05-01 12:30", dateTimeFormatter), 3, -4.50, true, "pietūs"));
+        records.add(new OutgoingRecord(++counter, LocalDateTime.parse("2023-05-01 17:30", dateTimeFormatter), 0, -111.32, false, "maistas"));
+        records.add(new OutgoingRecord(++counter, LocalDateTime.parse("2023-05-02 18:00", dateTimeFormatter), 1, -120.46, false, "automobilio remontas"));
+        records.add(new OutgoingRecord(++counter, LocalDateTime.parse("2023-05-03 08:03", dateTimeFormatter), 5, -32.68, true, "vitaminiai"));
+        records.add(new OutgoingRecord(++counter, LocalDateTime.parse("2023-05-03 12:15", dateTimeFormatter), 4, -25.80, true, "mikseris"));
+        records.add(new OutgoingRecord(++counter, LocalDateTime.parse("2023-05-03 17:00", dateTimeFormatter), 2, -68.00, false, "batai"));
         System.out.println("OutgoingStatements loaded...");
+
+    }
+
+    public String booleanInLT(boolean trueFalse){
+        if(trueFalse){
+            return "TAIP";
+        }
+        else{
+            return "NE";
+        }
+    }
+
+    public ArrayList<Record> getFilteredRecords() {
+        DataFilter dataFilter = new DataFilter();
+        dataFilter.setDateFrom(addDateTime("filtro pradžios", "2000-01-01 00:00"));
+
+        dataFilter.setDateTill(addDateTime("filtro pabaigos", null));
+
+        System.out.println("Kategorijos (atskirti tarpais): ");
+        printCategories();
+        String intLine = scannerB.nextLine();
+        String[] intInString = intLine.split(" ");
+        ArrayList<Integer> categories = new ArrayList<>();
+        for (String s : intInString) {
+            try {
+                int categoryInt = Integer.parseInt(s);
+                categories.add(categoryInt - 1);
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        dataFilter.setCategories(categories);
+
+        System.out.println("Atsiskaitymas kortele/bakiniu pavedimu (T/N) ?");
+        int paymentFilter;
+        while (true) {
+            String entered = scannerB.nextLine();
+            if (entered.equalsIgnoreCase("T") || entered.equalsIgnoreCase("Y") || entered.equals("1")) {
+                paymentFilter = 1;
+                break;
+            }
+            if (entered.equalsIgnoreCase("N") || entered.equals("0")) {
+                paymentFilter = 2;
+                break;
+            }
+            if (entered.equalsIgnoreCase("")) {
+                paymentFilter = 0;
+                break;
+            }
+            System.out.println("Nuskaitymo klaida. Įveskite tinkamą atsakymą.");
+        }
+        dataFilter.setTransactionType(paymentFilter);
+
+        return getRecords(dataFilter.getDateFrom(), dataFilter.getDateTill(), dataFilter.getCategories(), dataFilter.getTransactionType());
 
     }
 }
