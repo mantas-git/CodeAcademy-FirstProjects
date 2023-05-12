@@ -1,6 +1,10 @@
 package RecordModels;
 
+import Enums.Categories;
+import Enums.Strings;
+
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class OutgoingRecord extends Record{
     private int outgoingCategory;
@@ -30,9 +34,13 @@ public class OutgoingRecord extends Record{
 
     @Override
     public String toString() {
-        return "OutgoingRecord{" +
-                "category=" + outgoingCategory +
-                ", paymentMethod=" + paymentMethod +
-                '}';
+        return String.format("Sukurtas %s įrašas Nr. %d:%n%s\t%s\t%.2f\t%s\t(%s)",
+                Strings.OUTGOINGS.getLabel(),
+                id,
+                processDate.format(DateTimeFormatter.ofPattern(Strings.DATETIMEFORMAT.getLabel())),
+                Categories.values()[outgoingCategory].getCategorie(),
+                amount,
+                additionalInfo,
+                (paymentMethod ? "mokėta kortele" : "atsiskaita grynais"));
     }
 }

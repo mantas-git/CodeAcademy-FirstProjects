@@ -1,6 +1,9 @@
 package RecordModels;
+import Enums.Categories;
+import Enums.Strings;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class IncomeRecord extends Record {
     private int incomeCategory;
@@ -20,19 +23,23 @@ public class IncomeRecord extends Record {
         this.incomeCategory = incomeCategory;
     }
 
-    public boolean isTransferedToTheBank() {
+    public boolean isTransferredToTheBank() {
         return transferedToTheBank;
     }
 
-    public void setTransferedToTheBank(boolean transferedToTheBank) {
+    public void setTransferredToTheBank(boolean transferedToTheBank) {
         this.transferedToTheBank = transferedToTheBank;
     }
 
     @Override
     public String toString() {
-        return "IncomeRecord{" + getId() +
-                "category=" + incomeCategory +
-                ", transferedToTheBank=" + transferedToTheBank +
-                '}';
+        return String.format("Sukurtas %s įrašas Nr. %d:%n%s\t%s\t%.2f\t%s\t(%s)",
+                Strings.INCOMINGS.getLabel(),
+                id,
+                processDate.format(DateTimeFormatter.ofPattern(Strings.DATETIMEFORMAT.getLabel())),
+                Categories.values()[incomeCategory].getCategorie(),
+                amount,
+                additionalInfo,
+                (transferedToTheBank ? "bankiniu pavedimu" : "atsiskaitymas grynais"));
     }
 }

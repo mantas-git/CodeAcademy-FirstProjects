@@ -1,3 +1,5 @@
+package Enums;
+
 public enum Categories {
     FOOD("Maistas"),
     TRANSPORT("Transportas"),

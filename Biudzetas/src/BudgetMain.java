@@ -1,24 +1,28 @@
+import Enums.Categories;
+import Enums.Strings;
 import RecordModels.IncomeRecord;
 import RecordModels.OutgoingRecord;
 import RecordModels.Record;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Main {
-    private static Biudzetas b1;
+public class BudgetMain {
+    private static Budget b1;
     private static Scanner scanner;
     private static int tableType = 0; //0 - bendras, 1 - pajamos, 2 - išlaidos
-    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static DateTimeFormatter dateTimeFormatter;
 
     public static void main(String[] args) {
         System.out.println(Categories.values().length);
-        b1 = new Biudzetas();
+        b1 = new Budget();
         b1.fillData();
+        dateTimeFormatter = b1.getDateTimeFormatter();
         scanner = new Scanner(System.in);
         String userChoice = "";
-        while(!userChoice.equals("0")){
+        while(!userChoice.equals("00")){
             printMainMenu();
             userChoice = scanner.nextLine();
             switch (userChoice){
@@ -43,7 +47,13 @@ public class Main {
                 case "6":
                     showBalance();
                     break;
-                case "0":
+                case "7":
+                    saveDataToFile();
+                    break;
+                case "8":
+                    loadDataToFile();
+                    break;
+                case "00":
                     break;
                 default:
                     System.out.println("Įvestas neatpažintas simbolis");;
@@ -53,19 +63,32 @@ public class Main {
         scanner.close();
     }
 
+    private static void printMainMenu(){
+        System.out.println("Pasirinkite norimą operaciją:\n" +
+                "\t1. Įvesti pajamas\n" +
+                "\t2. Įvesti išlaidas\n" +
+                "\t3. Spausdinti visą išrašą\n" +
+                "\t4. Spausdinti pajamų išrašą\n" +
+                "\t5. Spausdinti išlaidų išrašą\n" +
+                "\t6. Balansas\n" +
+                "\t7. Įšsaugoti duomenis faile\n" +
+                "\t8. Įkelti duomenis iš failo\n" +
+                "\t00. Baigti darbą\n");
+    }
+
     private static void showBalance() {
         double totalSum = 0;
         ArrayList<Record> records = getRecords();
         for (Record record : records) {
             totalSum += record.getAmount();
         }
-        System.out.printf("Balansas %.2f%n", totalSum);
+        System.out.printf("%s Balansas: %.2f%n%n", LocalDateTime.now().format(dateTimeFormatter), totalSum);
     }
 
     private static void printTable() {
         double totalSum = 0;
         if(tableType == 0){
-            printTableTop("PAJAMOS ir IŠLAIDOS");
+            printTableTop(String.format("%s ir %s", Strings.INCOME.getLabel(), Strings.OUTCOME.getLabel()), Strings.PAYMENTBOTH.getLabel());
             ArrayList<Record> records = getRecords();
             for (Record record : records) {
                 printDataLine(record);
@@ -73,7 +96,7 @@ public class Main {
             }
         }
         if(tableType == 1){
-            printTableTop("PAJAMOS");
+            printTableTop(Strings.INCOME.getLabel(), Strings.PAYMENTBANK.getLabel());
             ArrayList<IncomeRecord> incomeRecords = getIncomeRecords();
             for (IncomeRecord incomeRecord : incomeRecords) {
                 printDataLine(incomeRecord);
@@ -81,7 +104,7 @@ public class Main {
             }
         }
         if(tableType == 2){
-            printTableTop("IŠLAIDOS");
+            printTableTop(Strings.OUTCOME.getLabel(), Strings.PAYMENTCARD.getLabel());
             ArrayList<OutgoingRecord> outgoingRecords = getOutgoingStatements();
             for (OutgoingRecord outgoingRecord : outgoingRecords) {
                 printDataLine(outgoingRecord);
@@ -95,14 +118,14 @@ public class Main {
     private static void printTable(ArrayList<Record> records) {
         double totalSum = 0;
         if(tableType == 0){
-            printTableTop("PAJAMOS ir IŠLAIDOS");
+            printTableTop(String.format("%s ir %s", Strings.INCOME.getLabel(), Strings.OUTCOME.getLabel()), Strings.PAYMENTBOTH.getLabel());
             for (Record record : records) {
                 printDataLine(record);
                 totalSum += record.getAmount();
             }
         }
         if(tableType == 1){
-            printTableTop("PAJAMOS");
+            printTableTop(Strings.INCOME.getLabel(), Strings.PAYMENTBANK.getLabel());
             for (Record record : records) {
                 if(record instanceof IncomeRecord) {
                     printDataLine(record);
@@ -111,7 +134,7 @@ public class Main {
             }
         }
         if(tableType == 2){
-            printTableTop("IŠLAIDOS");
+            printTableTop(Strings.OUTCOME.getLabel(), Strings.PAYMENTCARD.getLabel());
             for (Record record : records) {
                 if(record instanceof OutgoingRecord) {
                     printDataLine(record);
@@ -137,7 +160,7 @@ public class Main {
     private static boolean getGeneralType(Record record){
         boolean trueFalse = false;
         if(record instanceof IncomeRecord){
-            trueFalse = ((IncomeRecord) record).isTransferedToTheBank();
+            trueFalse = ((IncomeRecord) record).isTransferredToTheBank();
         }
         if(record instanceof OutgoingRecord){
             trueFalse = ((OutgoingRecord) record).isPaymentMethod();
@@ -145,12 +168,11 @@ public class Main {
         return trueFalse;
     }
 
-    private static void printTableTop(String name) {
+    private static void printTableTop(String name, String paymentMethod) {
         printVerticalLine();
         System.out.printf("| %64s %63s |%n", name, "");
         printVerticalLine();
-        //System.out.println(String.format("| %5s |\t%-20s |\t%-20s |\t%-20s |\t%10s |\t%-30s |", "Nr", "Data", "Kategorija", "Kortele/pavedimu", "Suma", "Komentaras"));
-        System.out.printf("| %5s |\t%-20s |\t%-20s |\t%-20s |\t%10s |\t%-30s |%n", "Nr", "Data ir laikas", "Kategorija", "Kortele/pavedimu", "Suma", "Komentaras");
+        System.out.printf("| %5s |\t%-20s |\t%-20s |\t%-20s |\t%10s |\t%-30s |%n", "Nr", "Data ir laikas", "Kategorija", paymentMethod, "Suma", "Komentaras");
         printVerticalLine();
     }
 
@@ -161,7 +183,6 @@ public class Main {
     }
 
     private static void printDataLine(Record record){
-        //System.out.println(String.format("| %5d |\t%-20s |\t%-20s |\t%-20s |\t%10.2f |\t%-30s |", id, processDate, getCategoryName(category), booleanInLT(throughBank), amount, additionalInfo));
         System.out.printf("| %5d |\t%-20s |\t%-20s |\t%-20s |\t%10.2f |\t%-30s |%n", record.getId(),
                 record.getProcessDate().format(dateTimeFormatter), Categories.values()[getGeneralCategory(record)].getCategorie(),
                 b1.booleanInLT(getGeneralType(record)), record.getAmount(), record.getAdditionalInfo());
@@ -202,17 +223,28 @@ public class Main {
         }
     }
 
+    private static void printTableMenu(){
+        System.out.print("Galimi veismai: " +
+                "1. Filtruoti \t\t" +
+                "2. Redaguoti \t\t" +
+                "3. Ištrinti \t\t" +
+                "4. Spausdinti \t\t" +
+                "00. Grįžti į pagrindinį meniu " +
+                "\n");
+
+    }
+
     private static void removeRecord(){
         System.out.println("Įveskite kurį įrašą ištrinti (00 - jei atšaukti)");
-        String userChoise = getTableMenuUserChoice();
-        if(!userChoise.equals("00")) {
-            Record record = b1.removeRecord(Integer.parseInt(userChoise));
+        String userChoice = getTableMenuUserChoice();
+        if(!userChoice.equals("00")) {
+            Record record = b1.removeRecord(Integer.parseInt(userChoice));
             if(record != null){
                 System.out.println("Ištrintas įrašas:");
                 printSmallTable(record);
             }
             else{
-                System.out.println("Pagal įvestą numerį įrašas nerastas.");
+                System.out.println(Strings.RECORDNOTFOUND.getLabel());
             }
         }
         else{
@@ -223,15 +255,15 @@ public class Main {
 
     private static void updateRecord() {
         System.out.println("Įveskite kurį įrašą norite redaguoti (00 - jei atšaukti)");
-        String userChoise = getTableMenuUserChoice();
-        if(!userChoise.equals("00")) {
-            Record record =  b1.updateRecord(Integer.parseInt(userChoise));
+        String userChoice = getTableMenuUserChoice();
+        if(!userChoice.equals("00")) {
+            Record record =  b1.updateRecord(Integer.parseInt(userChoice));
             if(record != null){
                 System.out.println("Įrašas atnaujintas");
                 printSmallTable(record);
             }
             else{
-                System.out.println("Pagal įvestą numerį įrašas nerastas.");
+                System.out.println(Strings.RECORDNOTFOUND.getLabel());
             }
         }
         else{
@@ -242,17 +274,17 @@ public class Main {
     }
 
     private static String getTableMenuUserChoice(){
-        String userChoise = "";
-        while (!userChoise.equals("00")) {
-            userChoise = scanner.nextLine();
+        String userChoice = "";
+        while (!userChoice.equals("00")) {
+            userChoice = scanner.nextLine();
             try {
-                Integer.parseInt(userChoise);
+                Integer.parseInt(userChoice);
                 break;
             } catch (NumberFormatException ex) {
                 System.out.println("Nuskaitymo klaida. Įveskite sveiką skaičių.");
             }
         }
-        return userChoise;
+        return userChoice;
     }
 
     private static void setFilter(){
@@ -261,30 +293,16 @@ public class Main {
         printTable(filteredRecords);
     }
 
+    private static void saveDataToFile(){
+        System.out.println("Save to file");
+    }
+
+    private static void loadDataToFile(){
+        System.out.println("Load from file");
+    }
+
     private static ArrayList<Record> getFilteredRecord() {
         return b1.getFilteredRecords();
-    }
-
-    private static void printMainMenu(){
-        System.out.println("Pasirinkite norimą operaciją:");
-        System.out.println("\t1. Įvesti pajamas");
-        System.out.println("\t2. Įvesti išlaidas");
-        System.out.println("\t3. Spausdinti visą išrašą");
-        System.out.println("\t4. Spausdinti pajamų išrašą");
-        System.out.println("\t5. Spausdinti išlaidų išrašą");
-        System.out.println("\t6. Balansas");
-        System.out.println("\t0. Baigti darbą");
-    }
-
-    private static void printTableMenu(){
-        System.out.print("Galimi veismai: ");
-        System.out.print("1. Filtruoti \t\t");
-        System.out.print("2. Redaguoti \t\t");
-        System.out.print("3. Ištrinti \t\t");
-        //System.out.print("4. Ištrinti įrašą ");
-        //System.out.println("5. Balansas");
-        System.out.println("00. Grįžti į pagrindinį meniu ");
-
     }
 
     private static ArrayList<Record> getRecords(){

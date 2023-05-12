@@ -1,3 +1,5 @@
+import Enums.Categories;
+import Enums.Strings;
 import RecordModels.IncomeRecord;
 import RecordModels.OutgoingRecord;
 import RecordModels.Record;
@@ -6,29 +8,32 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 
-public class Biudzetas {
+public class Budget {
     private ArrayList<Record> records = new ArrayList<>();
     private int counter;
     private final Scanner scannerB = new Scanner(System.in);
-    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(Strings.DATETIMEFORMAT.getLabel());
 
-    public Biudzetas() {
+    public Budget() {
     }
 
     public ArrayList<Record> getRecords() {
         return records;
     }
 
-    public ArrayList<Record> getRecords(LocalDateTime dateFrom, LocalDateTime dateTill, ArrayList<Integer> categories, int transactionType) {
+    public ArrayList<Record> getRecords(LocalDateTime dateFrom, LocalDateTime dateTill, Set<Integer> categories, int transactionType) {
         ArrayList<Record> filteredRecords = new ArrayList<>();
-        for (Record record : records) {
-            if (record.getProcessDate().isAfter(dateFrom) && record.getProcessDate().isBefore(dateTill)) {
-                filteredRecords.add(record);
-            }
+
+        filteredRecords = filterByDate(filteredRecords, dateFrom, dateTill);
+
+        if(transactionType != 0) {
+            filteredRecords = filterByTransaction(filteredRecords, transactionType);
         }
-        filteredRecords = filterByTransaction(filteredRecords, transactionType);
+
         if(categories.size() > 0) {
             filteredRecords = filterByCategories(filteredRecords, categories);
         }
@@ -36,7 +41,17 @@ public class Biudzetas {
         return filteredRecords;
     }
 
-    private ArrayList<Record> filterByCategories(ArrayList<Record> records, ArrayList<Integer> categories) {
+    private ArrayList<Record> filterByDate(ArrayList<Record> records, LocalDateTime dateFrom, LocalDateTime dateTill) {
+        ArrayList<Record> filteredRecords = new ArrayList<>();
+        for (Record record : records) {
+            if (record.getProcessDate().isAfter(dateFrom) && record.getProcessDate().isBefore(dateTill)) {
+                filteredRecords.add(record);
+            }
+        }
+        return filteredRecords;
+    }
+
+    private ArrayList<Record> filterByCategories(ArrayList<Record> records, Set<Integer> categories) {
         ArrayList<Record> filteredRecords = new ArrayList<>();
         for (Record record : records) {
             for (Integer category : categories) {
@@ -55,7 +70,7 @@ public class Biudzetas {
         ArrayList<Record> filteredRecords = new ArrayList<>();
         if(transactionType == 1){
             for (Record record : records) {
-                if (record instanceof IncomeRecord && ((IncomeRecord) record).isTransferedToTheBank()) {
+                if (record instanceof IncomeRecord && ((IncomeRecord) record).isTransferredToTheBank()) {
                     filteredRecords.add(record);
                 }
                 if (record instanceof OutgoingRecord && ((OutgoingRecord) record).isPaymentMethod()) {
@@ -65,16 +80,13 @@ public class Biudzetas {
         }
         if(transactionType == 2){
             for (Record record : records) {
-                if (record instanceof IncomeRecord && !((IncomeRecord) record).isTransferedToTheBank()) {
+                if (record instanceof IncomeRecord && !((IncomeRecord) record).isTransferredToTheBank()) {
                     filteredRecords.add(record);
                 }
                 if (record instanceof OutgoingRecord && !((OutgoingRecord) record).isPaymentMethod()) {
                     filteredRecords.add(record);
                 }
             }
-        }
-        if(transactionType == 0){
-            filteredRecords = records;
         }
         return filteredRecords;
     }
@@ -99,18 +111,24 @@ public class Biudzetas {
         return outgoingRecords;
     }
 
+    public DateTimeFormatter getDateTimeFormatter() {
+        return dateTimeFormatter;
+    }
+
     public void addIncomeStatement() {
-        String type = "pajamų";
+        String type = Strings.INCOMINGS.getLabel();
         IncomeRecord incomeRecord = new IncomeRecord(++counter, addDateTime(type, null), addCategory(type),
                 addAmount(type), addTransactionType("Ar pinigai pervesti į banką? (T/N) "), addComment());
         addRecord(incomeRecord);
+        System.out.println(incomeRecord);
         System.out.println();
     }
 
     public void addOutgoingStatement() {
-        String type = "išlaidų";
+        String type = Strings.OUTGOINGS.getLabel();
         OutgoingRecord outgoingRecord = new OutgoingRecord(++counter, addDateTime(type, null), addCategory(type),
                 addAmount(type) * -1, addTransactionType("Ar atsiskaityta grynais ? (T/N) "), addComment());
+        System.out.println(outgoingRecord);
         addRecord(outgoingRecord);
     }
 
@@ -169,7 +187,7 @@ public class Biudzetas {
         userChoise = scannerB.nextLine();
         if(userChoise.equals("1")){
             if ((record instanceof IncomeRecord)) {
-                ((IncomeRecord) record).setTransferedToTheBank(addTransactionType("Įvesti naują reikšmę"));
+                ((IncomeRecord) record).setTransferredToTheBank(addTransactionType("Įvesti naują reikšmę"));
             } else {
                 ((OutgoingRecord) record).setPaymentMethod(addTransactionType("Įvesti naują reikšmę"));
             }
@@ -204,7 +222,7 @@ public class Biudzetas {
     }
 
     private String getRecordMethod(Record record) {
-        boolean i = (record instanceof IncomeRecord) ? ((IncomeRecord) record).isTransferedToTheBank() : ((OutgoingRecord) record).isPaymentMethod();
+        boolean i = (record instanceof IncomeRecord) ? ((IncomeRecord) record).isTransferredToTheBank() : ((OutgoingRecord) record).isPaymentMethod();
         return booleanInLT(i);
     }
 
@@ -315,28 +333,28 @@ public class Biudzetas {
         records.add(new OutgoingRecord(++counter, LocalDateTime.parse("2023-05-03 17:00", dateTimeFormatter), 2, -68.00, false, "batai"));
         System.out.println("OutgoingStatements loaded...");
 
+        System.out.println();
+
     }
 
     public String booleanInLT(boolean trueFalse){
-        if(trueFalse){
-            return "TAIP";
-        }
-        else{
-            return "NE";
-        }
+        return (trueFalse ? "TAIP" : "NE");
     }
 
     public ArrayList<Record> getFilteredRecords() {
-        DataFilter dataFilter = new DataFilter();
-        dataFilter.setDateFrom(addDateTime("filtro pradžios", "2000-01-01 00:00"));
+        LocalDateTime dateFrom = addDateTime("filtro pradžios", "2000-01-01 00:00");
+        LocalDateTime dateTill = addDateTime("filtro pradžios", "2000-01-01 00:00");
+        Set<Integer> categories = getCategoriesFilter();
+        int paymentFilter = getPaymentFilter();
+        return getRecords(dateFrom, dateTill, categories, paymentFilter);
+    }
 
-        dataFilter.setDateTill(addDateTime("filtro pabaigos", null));
-
+    private Set<Integer> getCategoriesFilter(){
         System.out.println("Kategorijos (atskirti tarpais): ");
         printCategories();
         String intLine = scannerB.nextLine();
         String[] intInString = intLine.split(" ");
-        ArrayList<Integer> categories = new ArrayList<>();
+        Set<Integer> categories = new HashSet<>();
         for (String s : intInString) {
             try {
                 int categoryInt = Integer.parseInt(s);
@@ -344,8 +362,10 @@ public class Biudzetas {
             } catch (NumberFormatException ignored) {
             }
         }
-        dataFilter.setCategories(categories);
+        return categories;
+    }
 
+    private int getPaymentFilter() {
         System.out.println("Atsiskaitymas kortele/bakiniu pavedimu (T/N) ?");
         int paymentFilter;
         while (true) {
@@ -364,9 +384,6 @@ public class Biudzetas {
             }
             System.out.println("Nuskaitymo klaida. Įveskite tinkamą atsakymą.");
         }
-        dataFilter.setTransactionType(paymentFilter);
-
-        return getRecords(dataFilter.getDateFrom(), dataFilter.getDateTill(), dataFilter.getCategories(), dataFilter.getTransactionType());
-
+        return paymentFilter;
     }
 }
