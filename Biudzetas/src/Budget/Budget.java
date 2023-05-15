@@ -1,3 +1,5 @@
+package Budget;
+
 import Enums.Categories;
 import Enums.Strings;
 import RecordModels.IncomeRecord;
@@ -7,18 +9,19 @@ import RecordModels.Record;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 public class Budget {
     private ArrayList<Record> records = new ArrayList<>();
-    private int counter;
+    private int counter = 1;
     private final Scanner scannerB = new Scanner(System.in);
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(Strings.DATETIMEFORMAT.getLabel());
 
     public Budget() {
+    }
+
+    public int getCounter() {
+        return counter;
     }
 
     public ArrayList<Record> getRecords() {
@@ -117,7 +120,7 @@ public class Budget {
 
     public void addIncomeStatement() {
         String type = Strings.INCOMINGS.getLabel();
-        IncomeRecord incomeRecord = new IncomeRecord(++counter, addDateTime(type, null), addCategory(type),
+        IncomeRecord incomeRecord = new IncomeRecord(counter, addDateTime(type, null), addCategory(type),
                 addAmount(type), addTransactionType("Ar pinigai pervesti į banką? (T/N) "), addComment());
         addRecord(incomeRecord);
         System.out.println(incomeRecord);
@@ -126,24 +129,34 @@ public class Budget {
 
     public void addOutgoingStatement() {
         String type = Strings.OUTGOINGS.getLabel();
-        OutgoingRecord outgoingRecord = new OutgoingRecord(++counter, addDateTime(type, null), addCategory(type),
+        OutgoingRecord outgoingRecord = new OutgoingRecord(counter, addDateTime(type, null), addCategory(type),
                 addAmount(type) * -1, addTransactionType("Ar atsiskaityta grynais ? (T/N) "), addComment());
         System.out.println(outgoingRecord);
         addRecord(outgoingRecord);
     }
 
-    private void addRecord(Record record){
+    public void addRecord(Record record){
         records.add(record);
+        counter++;
     }
 
     public Record removeRecord(int deleteID) {
         Record record = null;
-        for(int i = 0; i < records.size(); i++){
-            if(records.get(i).getId() == deleteID){
-                record = records.get(i);
-                records.remove(i);
+        Iterator<Record> recordIterator = records.iterator();
+        while (recordIterator.hasNext()) {
+            record = recordIterator.next();
+            if(record.getId() == (deleteID)){
+                recordIterator.remove();
+                break;
             }
         }
+//        for(int i = 1; i < records.size(); i++){
+//            if(records.get(i).getId() == deleteID){
+//                record = records.get(i);
+//                records.remove(i);
+//                break;
+//            }
+//        }
         return record;
     }
 
@@ -284,10 +297,10 @@ public class Budget {
         double sum;
         while (true) {
             try {
-                sum = Double.parseDouble(scannerB.nextLine());
+                sum = Double.parseDouble(scannerB.nextLine().replace(",","."));
                 break;
             } catch (NumberFormatException ex) {
-                System.out.println("Nuskaitymo klaida. Įveskite sumą, centus atskiriant tašku (.) .");
+                System.out.println("Nuskaitymo klaida. Įveskite sumą.");
             }
         }
         return Math.abs(sum);
@@ -317,20 +330,22 @@ public class Budget {
     }
 
     public void fillData() {
-        records.add(new IncomeRecord(++counter, LocalDateTime.parse("2023-05-01 12:15", dateTimeFormatter), 6, 1000.00, true, "darbo uzmokestis"));
-        records.add(new IncomeRecord(++counter, LocalDateTime.parse("2023-05-01 13:12", dateTimeFormatter), 8, 3.15, false, "uz lipdukus"));
-        records.add(new IncomeRecord(++counter, LocalDateTime.parse("2023-05-02 18:00", dateTimeFormatter), 7, 50.00, false, "sukapotos malkos"));
-        records.add(new IncomeRecord(++counter, LocalDateTime.parse("2023-05-03 08:03", dateTimeFormatter), 9, 20.00, true, "uz pavezima"));
-        records.add(new IncomeRecord(++counter, LocalDateTime.parse("2023-05-03 12:15", dateTimeFormatter), 8, 5.5, true, "uz laida"));
-        records.add(new IncomeRecord(++counter, LocalDateTime.parse("2023-05-03 17:00", dateTimeFormatter), 7, 25.00, false, "pakeiciau plokste"));
+        System.out.println();
+
+        records.add(new IncomeRecord(counter++, LocalDateTime.parse("2023-05-01 12:15", dateTimeFormatter), 6, 1000.00, true, "darbo uzmokestis"));
+        records.add(new IncomeRecord(counter++, LocalDateTime.parse("2023-05-01 13:12", dateTimeFormatter), 8, 3.15, false, "uz lipdukus"));
+        records.add(new IncomeRecord(counter++, LocalDateTime.parse("2023-05-02 18:00", dateTimeFormatter), 7, 50.00, false, "sukapotos malkos"));
+        records.add(new IncomeRecord(counter++, LocalDateTime.parse("2023-05-03 08:03", dateTimeFormatter), 9, 20.00, true, "uz pavezima"));
+        records.add(new IncomeRecord(counter++, LocalDateTime.parse("2023-05-03 12:15", dateTimeFormatter), 8, 5.5, true, "uz laida"));
+        records.add(new IncomeRecord(counter++, LocalDateTime.parse("2023-05-03 17:00", dateTimeFormatter), 7, 25.00, false, "pakeiciau plokste"));
         System.out.println("IncoemStatments loaded...");
 
-        records.add(new OutgoingRecord(++counter, LocalDateTime.parse("2023-05-01 12:30", dateTimeFormatter), 3, -4.50, true, "pietūs"));
-        records.add(new OutgoingRecord(++counter, LocalDateTime.parse("2023-05-01 17:30", dateTimeFormatter), 0, -111.32, false, "maistas"));
-        records.add(new OutgoingRecord(++counter, LocalDateTime.parse("2023-05-02 18:00", dateTimeFormatter), 1, -120.46, false, "automobilio remontas"));
-        records.add(new OutgoingRecord(++counter, LocalDateTime.parse("2023-05-03 08:03", dateTimeFormatter), 5, -32.68, true, "vitaminiai"));
-        records.add(new OutgoingRecord(++counter, LocalDateTime.parse("2023-05-03 12:15", dateTimeFormatter), 4, -25.80, true, "mikseris"));
-        records.add(new OutgoingRecord(++counter, LocalDateTime.parse("2023-05-03 17:00", dateTimeFormatter), 2, -68.00, false, "batai"));
+        records.add(new OutgoingRecord(counter++, LocalDateTime.parse("2023-05-01 12:30", dateTimeFormatter), 3, -4.50, true, "pietūs"));
+        records.add(new OutgoingRecord(counter++, LocalDateTime.parse("2023-05-01 17:30", dateTimeFormatter), 0, -111.32, false, "maistas"));
+        records.add(new OutgoingRecord(counter++, LocalDateTime.parse("2023-05-02 18:00", dateTimeFormatter), 1, -120.46, false, "automobilio remontas"));
+        records.add(new OutgoingRecord(counter++, LocalDateTime.parse("2023-05-03 08:03", dateTimeFormatter), 5, -32.68, true, "vitaminiai"));
+        records.add(new OutgoingRecord(counter++, LocalDateTime.parse("2023-05-03 12:15", dateTimeFormatter), 4, -25.80, true, "mikseris"));
+        records.add(new OutgoingRecord(counter++, LocalDateTime.parse("2023-05-03 17:00", dateTimeFormatter), 2, -68.00, false, "batai"));
         System.out.println("OutgoingStatements loaded...");
 
         System.out.println();

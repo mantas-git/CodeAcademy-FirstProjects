@@ -9,7 +9,14 @@ public enum Strings {
     PAYMENTBANK("Pavedimu"),
     PAYMENTBOTH("Kortele/pavedimu"),
     RECORDNOTFOUND("Pagal įvestą numerį įrašas nerastas."),
-    DATETIMEFORMAT("yyyy-MM-dd HH:mm");
+    DATETIMEFORMAT("yyyy-MM-dd HH:mm"),
+    COLUMNNR("Nr"),
+    COLUMNDATEANDTIME("Data ir laikas"),
+    COLUMNCATEGORIE("Kategorija"),
+    COLUMNAMOUNT("Suma"),
+    COLUMNCOMMENT("Komentaras"),
+    CSVFORMAT("%s;%s;%.2f;%s;%s%n"),
+    DATAFILENAME("Biudzetas/BudgetData.csv");
 
     private String label;
 

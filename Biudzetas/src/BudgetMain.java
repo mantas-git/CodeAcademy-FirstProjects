@@ -1,5 +1,8 @@
+import Budget.Budget;
 import Enums.Categories;
 import Enums.Strings;
+import FileModels.LoadFromFile;
+import FileModels.WriteToFile;
 import RecordModels.IncomeRecord;
 import RecordModels.OutgoingRecord;
 import RecordModels.Record;
@@ -16,7 +19,6 @@ public class BudgetMain {
     private static DateTimeFormatter dateTimeFormatter;
 
     public static void main(String[] args) {
-        System.out.println(Categories.values().length);
         b1 = new Budget();
         b1.fillData();
         dateTimeFormatter = b1.getDateTimeFormatter();
@@ -51,7 +53,7 @@ public class BudgetMain {
                     saveDataToFile();
                     break;
                 case "8":
-                    loadDataToFile();
+                    loadDataFromFile();
                     break;
                 case "00":
                     break;
@@ -172,7 +174,13 @@ public class BudgetMain {
         printVerticalLine();
         System.out.printf("| %64s %63s |%n", name, "");
         printVerticalLine();
-        System.out.printf("| %5s |\t%-20s |\t%-20s |\t%-20s |\t%10s |\t%-30s |%n", "Nr", "Data ir laikas", "Kategorija", paymentMethod, "Suma", "Komentaras");
+        System.out.printf("| %5s |\t%-20s |\t%-20s |\t%-20s |\t%10s |\t%-30s |%n",
+                Strings.COLUMNNR.getLabel(),
+                Strings.COLUMNDATEANDTIME.getLabel(),
+                Strings.COLUMNCATEGORIE.getLabel(),
+                paymentMethod,
+                Strings.COLUMNAMOUNT.getLabel(),
+                Strings.COLUMNCOMMENT.getLabel());
         printVerticalLine();
     }
 
@@ -228,7 +236,7 @@ public class BudgetMain {
                 "1. Filtruoti \t\t" +
                 "2. Redaguoti \t\t" +
                 "3. Ištrinti \t\t" +
-                "4. Spausdinti \t\t" +
+//                "4. Spausdinti \t\t" +
                 "00. Grįžti į pagrindinį meniu " +
                 "\n");
 
@@ -293,12 +301,15 @@ public class BudgetMain {
         printTable(filteredRecords);
     }
 
-    private static void saveDataToFile(){
-        System.out.println("Save to file");
+    private static void saveDataToFile() {
+        WriteToFile writeToFile = new WriteToFile();
+        writeToFile.saveToFile(getRecords());
+//        System.out.println("Save to file");
     }
 
-    private static void loadDataToFile(){
-        System.out.println("Load from file");
+    private static void loadDataFromFile(){
+        LoadFromFile loadFromFile = new LoadFromFile(b1);
+        loadFromFile.loadFromFile();
     }
 
     private static ArrayList<Record> getFilteredRecord() {

@@ -43,4 +43,14 @@ public class OutgoingRecord extends Record{
                 additionalInfo,
                 (paymentMethod ? "mokėta kortele" : "atsiskaita grynais"));
     }
+
+    public String toCsvString(){
+        return String.format(Strings.CSVFORMAT.getLabel(),
+        //        id,
+                processDate,
+                outgoingCategory,
+                amount,
+                additionalInfo,
+                paymentMethod);
+    }
 }

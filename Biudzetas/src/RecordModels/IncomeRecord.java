@@ -42,4 +42,14 @@ public class IncomeRecord extends Record {
                 additionalInfo,
                 (transferedToTheBank ? "bankiniu pavedimu" : "atsiskaitymas grynais"));
     }
+
+    public String toCsvString(){
+        return String.format(Strings.CSVFORMAT.getLabel(),
+       //         id,
+                processDate,
+                incomeCategory,
+                amount,
+                additionalInfo,
+                transferedToTheBank);
+    }
 }
