@@ -1,6 +1,6 @@
-package RecordModels;
-import Enums.Categories;
-import Enums.Strings;
+package recordModels;
+import enums.Categories;
+import enums.Strings;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

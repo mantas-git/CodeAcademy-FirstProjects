@@ -1,4 +1,4 @@
-package Enums;
+package enums;
 
 public enum Strings {
     INCOME("PAJAMOS"),
@@ -16,7 +16,8 @@ public enum Strings {
     COLUMNAMOUNT("Suma"),
     COLUMNCOMMENT("Komentaras"),
     CSVFORMAT("%s;%s;%.2f;%s;%s%n"),
-    DATAFILENAME("Biudzetas/BudgetData.csv");
+    DATAFILENAME("Biudzetas/BudgetData.csv"),
+    PRINTFILENAME("Biudzetas/TablePrint.txt");
 
     private String label;
 

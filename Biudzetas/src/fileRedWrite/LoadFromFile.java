@@ -1,16 +1,16 @@
-package FileModels;
+package fileRedWrite;
 
-import Budget.Budget;
-import Enums.Strings;
-import RecordModels.IncomeRecord;
-import RecordModels.OutgoingRecord;
-import RecordModels.Record;
+import models.Budget;
+import enums.Strings;
+import recordModels.IncomeRecord;
+import recordModels.OutgoingRecord;
+import recordModels.Record;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 
 public class LoadFromFile {
     private Budget budget;
@@ -34,6 +34,9 @@ public class LoadFromFile {
                 stringFromFile = bufferedReader.readLine();
             }
             bufferedReader.close();
+        }
+        catch (FileNotFoundException fileNotFoundException){
+            System.out.println("!!! Nepavyko rasti failo !!!");
         }
         catch (IOException io){
             System.out.println("!!! Nepavyko nuskaityti iš failo !!!");

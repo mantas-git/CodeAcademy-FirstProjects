@@ -1,10 +1,10 @@
-package Budget;
+package models;
 
-import Enums.Categories;
-import Enums.Strings;
-import RecordModels.IncomeRecord;
-import RecordModels.OutgoingRecord;
-import RecordModels.Record;
+import enums.Categories;
+import enums.Strings;
+import recordModels.IncomeRecord;
+import recordModels.OutgoingRecord;
+import recordModels.Record;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,6 +13,8 @@ import java.util.*;
 
 public class Budget {
     private ArrayList<Record> records = new ArrayList<>();
+
+    private ArrayList<Record> filteredRecords = new ArrayList<>();
     private int counter = 1;
     private final Scanner scannerB = new Scanner(System.in);
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(Strings.DATETIMEFORMAT.getLabel());
@@ -29,9 +31,9 @@ public class Budget {
     }
 
     public ArrayList<Record> getRecords(LocalDateTime dateFrom, LocalDateTime dateTill, Set<Integer> categories, int transactionType) {
-        ArrayList<Record> filteredRecords = new ArrayList<>();
+        filteredRecords = new ArrayList<>();
 
-        filteredRecords = filterByDate(filteredRecords, dateFrom, dateTill);
+        filteredRecords = filterByDate(dateFrom, dateTill);
 
         if(transactionType != 0) {
             filteredRecords = filterByTransaction(filteredRecords, transactionType);
@@ -44,7 +46,15 @@ public class Budget {
         return filteredRecords;
     }
 
-    private ArrayList<Record> filterByDate(ArrayList<Record> records, LocalDateTime dateFrom, LocalDateTime dateTill) {
+    public void setFilteredRecords(ArrayList<Record> filteredRecords) {
+        this.filteredRecords = filteredRecords;
+    }
+
+    public ArrayList<Record> getFilteredRecords(){
+        return filteredRecords;
+    }
+
+    private ArrayList<Record> filterByDate(LocalDateTime dateFrom, LocalDateTime dateTill) {
         ArrayList<Record> filteredRecords = new ArrayList<>();
         for (Record record : records) {
             if (record.getProcessDate().isAfter(dateFrom) && record.getProcessDate().isBefore(dateTill)) {
@@ -150,13 +160,6 @@ public class Budget {
                 break;
             }
         }
-//        for(int i = 1; i < records.size(); i++){
-//            if(records.get(i).getId() == deleteID){
-//                record = records.get(i);
-//                records.remove(i);
-//                break;
-//            }
-//        }
         return record;
     }
 
@@ -311,11 +314,11 @@ public class Budget {
         boolean trueFalse;
         while (true) {
             String entered = scannerB.nextLine();
-            if (entered.equalsIgnoreCase("T") || entered.equalsIgnoreCase("Y") || entered.equals("1")) {
+            if (entered.equalsIgnoreCase("T") || entered.equalsIgnoreCase("TAIP") || entered.equalsIgnoreCase("Y") || entered.equals("1")) {
                 trueFalse = true;
                 break;
             }
-            if (entered.equalsIgnoreCase("N") || entered.equals("0")) {
+            if (entered.equalsIgnoreCase("N") || entered.equalsIgnoreCase("NE") || entered.equals("0")) {
                 trueFalse = false;
                 break;
             }
@@ -356,9 +359,9 @@ public class Budget {
         return (trueFalse ? "TAIP" : "NE");
     }
 
-    public ArrayList<Record> getFilteredRecords() {
+    public ArrayList<Record> createFilteredRecords() {
         LocalDateTime dateFrom = addDateTime("filtro pradžios", "2000-01-01 00:00");
-        LocalDateTime dateTill = addDateTime("filtro pradžios", "2000-01-01 00:00");
+        LocalDateTime dateTill = addDateTime("filtro pabaigos", null);
         Set<Integer> categories = getCategoriesFilter();
         int paymentFilter = getPaymentFilter();
         return getRecords(dateFrom, dateTill, categories, paymentFilter);

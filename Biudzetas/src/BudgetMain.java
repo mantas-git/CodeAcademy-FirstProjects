@@ -1,11 +1,11 @@
-import Budget.Budget;
-import Enums.Categories;
-import Enums.Strings;
-import FileModels.LoadFromFile;
-import FileModels.WriteToFile;
-import RecordModels.IncomeRecord;
-import RecordModels.OutgoingRecord;
-import RecordModels.Record;
+import enums.Strings;
+import fileRedWrite.LoadFromFile;
+import fileRedWrite.WriteToFile;
+import models.Budget;
+import models.Table;
+import recordModels.IncomeRecord;
+import recordModels.OutgoingRecord;
+import recordModels.Record;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -16,12 +16,10 @@ public class BudgetMain {
     private static Budget b1;
     private static Scanner scanner;
     private static int tableType = 0; //0 - bendras, 1 - pajamos, 2 - išlaidos
-    private static DateTimeFormatter dateTimeFormatter;
 
     public static void main(String[] args) {
         b1 = new Budget();
         b1.fillData();
-        dateTimeFormatter = b1.getDateTimeFormatter();
         scanner = new Scanner(System.in);
         String userChoice = "";
         while(!userChoice.equals("00")){
@@ -84,10 +82,11 @@ public class BudgetMain {
         for (Record record : records) {
             totalSum += record.getAmount();
         }
-        System.out.printf("%s Balansas: %.2f%n%n", LocalDateTime.now().format(dateTimeFormatter), totalSum);
+        System.out.printf("%s Balansas: %.2f%n%n", LocalDateTime.now().format(getDateTimeFormatter()), totalSum);
     }
 
     private static void printTable() {
+        setFilteredRecords(null);
         double totalSum = 0;
         if(tableType == 0){
             printTableTop(String.format("%s ir %s", Strings.INCOME.getLabel(), Strings.OUTCOME.getLabel()), Strings.PAYMENTBOTH.getLabel());
@@ -148,63 +147,28 @@ public class BudgetMain {
         printTableMenu();
     }
 
-    private static int getGeneralCategory(Record record){
-        int category = 0;
-        if(record instanceof IncomeRecord){
-            category = ((IncomeRecord) record).getIncomeCategory();
-        }
-        if(record instanceof OutgoingRecord){
-            category = ((OutgoingRecord) record).getOutgoingCategory();
-        }
-        return category;
-    }
-
-    private static boolean getGeneralType(Record record){
-        boolean trueFalse = false;
-        if(record instanceof IncomeRecord){
-            trueFalse = ((IncomeRecord) record).isTransferredToTheBank();
-        }
-        if(record instanceof OutgoingRecord){
-            trueFalse = ((OutgoingRecord) record).isPaymentMethod();
-        }
-        return trueFalse;
-    }
-
     private static void printTableTop(String name, String paymentMethod) {
-        printVerticalLine();
-        System.out.printf("| %64s %63s |%n", name, "");
-        printVerticalLine();
-        System.out.printf("| %5s |\t%-20s |\t%-20s |\t%-20s |\t%10s |\t%-30s |%n",
-                Strings.COLUMNNR.getLabel(),
-                Strings.COLUMNDATEANDTIME.getLabel(),
-                Strings.COLUMNCATEGORIE.getLabel(),
-                paymentMethod,
-                Strings.COLUMNAMOUNT.getLabel(),
-                Strings.COLUMNCOMMENT.getLabel());
-        printVerticalLine();
+        System.out.print(Table.getVerticalLine()
+                + Table.getTableNames(name)
+                + Table.getVerticalLine()
+                + Table.getColumnNames(paymentMethod)
+                + Table.getVerticalLine());
     }
 
     private static void printTableBottom(double totalSum) {
-        printVerticalLine();
-        System.out.printf("| %62s %29.2f %35s |%n", "Viso", totalSum, "");
-        printVerticalLine();
+        System.out.print(Table.getVerticalLine()
+                + Table.getBottomLine(totalSum)
+                + Table.getVerticalLine());
     }
 
     private static void printDataLine(Record record){
-        System.out.printf("| %5d |\t%-20s |\t%-20s |\t%-20s |\t%10.2f |\t%-30s |%n", record.getId(),
-                record.getProcessDate().format(dateTimeFormatter), Categories.values()[getGeneralCategory(record)].getCategorie(),
-                b1.booleanInLT(getGeneralType(record)), record.getAmount(), record.getAdditionalInfo());
-    }
-
-    private static void printVerticalLine(){
-        //System.out.println(String.format("%-"+131+"s", "|").replaceAll("\\s(?=\\s+$|$)", "-")+"|");  //pasinagrineti, kaip veikia
-        System.out.println(String.format("%-131s", "|").replaceAll("\\s(?=\\s+$|$)", "-")+"|");
+        System.out.print(Table.getDataLine(b1, record));
     }
 
     private static void printSmallTable(Record record){
-        printVerticalLine();
-        printDataLine(record);
-        printVerticalLine();
+        System.out.print(Table.getVerticalLine()
+                + Table.getDataLine(b1, record)
+                + Table.getVerticalLine());
     }
 
     private static void runTableMenu() {
@@ -222,6 +186,9 @@ public class BudgetMain {
                 case "3":
                     removeRecord();
                     break;
+                case "4":
+                    printDataTableToFile();
+                    break;
                 case "00":
                     break;
                 default:
@@ -236,7 +203,7 @@ public class BudgetMain {
                 "1. Filtruoti \t\t" +
                 "2. Redaguoti \t\t" +
                 "3. Ištrinti \t\t" +
-//                "4. Spausdinti \t\t" +
+                "4. Spausdinti \t\t" +
                 "00. Grįžti į pagrindinį meniu " +
                 "\n");
 
@@ -246,7 +213,7 @@ public class BudgetMain {
         System.out.println("Įveskite kurį įrašą ištrinti (00 - jei atšaukti)");
         String userChoice = getTableMenuUserChoice();
         if(!userChoice.equals("00")) {
-            Record record = b1.removeRecord(Integer.parseInt(userChoice));
+            Record record = removeRecord(Integer.parseInt(userChoice));
             if(record != null){
                 System.out.println("Ištrintas įrašas:");
                 printSmallTable(record);
@@ -265,7 +232,7 @@ public class BudgetMain {
         System.out.println("Įveskite kurį įrašą norite redaguoti (00 - jei atšaukti)");
         String userChoice = getTableMenuUserChoice();
         if(!userChoice.equals("00")) {
-            Record record =  b1.updateRecord(Integer.parseInt(userChoice));
+            Record record =  updateRecord(Integer.parseInt(userChoice));
             if(record != null){
                 System.out.println("Įrašas atnaujintas");
                 printSmallTable(record);
@@ -297,14 +264,12 @@ public class BudgetMain {
 
     private static void setFilter(){
         System.out.println("Filtro kūrimas: ");
-        ArrayList<Record> filteredRecords = getFilteredRecord();
-        printTable(filteredRecords);
+        printTable(createFilteredRecord());
     }
 
     private static void saveDataToFile() {
         WriteToFile writeToFile = new WriteToFile();
         writeToFile.saveToFile(getRecords());
-//        System.out.println("Save to file");
     }
 
     private static void loadDataFromFile(){
@@ -312,12 +277,38 @@ public class BudgetMain {
         loadFromFile.loadFromFile();
     }
 
-    private static ArrayList<Record> getFilteredRecord() {
-        return b1.getFilteredRecords();
+    private static void printDataTableToFile(){
+        WriteToFile writeToFile = new WriteToFile();
+        if(getFilteredRecords() == null) {
+            writeToFile.printToFile(b1, tableType, getRecords());
+        }
+        else{
+            writeToFile.printToFile(b1, tableType, getFilteredRecords());
+        }
+    }
+
+    private static ArrayList<Record> createFilteredRecord() {
+        return b1.createFilteredRecords();
+    }
+
+    public static void setFilteredRecords(ArrayList<Record> records){
+        b1.setFilteredRecords(records);
+    }
+
+    private static Record updateRecord(int i) {
+        return b1.updateRecord(i);
+    }
+
+    private static Record removeRecord(int i) {
+        return b1.removeRecord(i);
     }
 
     private static ArrayList<Record> getRecords(){
         return b1.getRecords();
+    }
+
+    private static ArrayList<Record> getFilteredRecords(){
+        return b1.getFilteredRecords();
     }
 
     private static ArrayList<IncomeRecord> getIncomeRecords(){
@@ -326,6 +317,10 @@ public class BudgetMain {
 
     private static ArrayList<OutgoingRecord> getOutgoingStatements(){
         return b1.getOutgoingRecords();
+    }
+
+    private static DateTimeFormatter getDateTimeFormatter(){
+        return b1.getDateTimeFormatter();
     }
 
 }

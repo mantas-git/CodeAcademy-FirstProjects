@@ -1,4 +1,4 @@
-package RecordModels;
+package recordModels;
 
 import java.time.LocalDateTime;
 
