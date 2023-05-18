@@ -17,7 +17,8 @@ public enum Strings {
     COLUMNCOMMENT("Komentaras"),
     CSVFORMAT("%s;%s;%.2f;%s;%s%n"),
     DATAFILENAME("Biudzetas/BudgetData.csv"),
-    PRINTFILENAME("Biudzetas/TablePrint.txt");
+    PRINTFILENAME("Biudzetas/TablePrint.txt"),
+    ENTEREDUNKNOWNSYMBOL("Įvestas neatpažintas simbolis");
 
     private String label;
 

@@ -19,7 +19,7 @@ public class BudgetMain {
 
     public static void main(String[] args) {
         b1 = new Budget();
-        b1.fillData();
+//        b1.fillData();
         scanner = new Scanner(System.in);
         String userChoice = "";
         while(!userChoice.equals("00")){
@@ -33,16 +33,13 @@ public class BudgetMain {
                     b1.addOutgoingStatement();
                     break;
                 case "3":
-                    tableType = 0;
-                    printTable();
+                    printTable(0);
                     break;
                 case "4":
-                    tableType = 1;
-                    printTable();
+                    printTable(1);
                     break;
                 case "5":
-                    tableType = 2;
-                    printTable();
+                    printTable(2);
                     break;
                 case "6":
                     showBalance();
@@ -56,7 +53,7 @@ public class BudgetMain {
                 case "00":
                     break;
                 default:
-                    System.out.println("Įvestas neatpažintas simbolis");;
+                    System.out.println(Strings.ENTEREDUNKNOWNSYMBOL.getLabel());
                     break;
             }
         }
@@ -85,7 +82,8 @@ public class BudgetMain {
         System.out.printf("%s Balansas: %.2f%n%n", LocalDateTime.now().format(getDateTimeFormatter()), totalSum);
     }
 
-    private static void printTable() {
+    private static void printTable(int tType) {
+        tableType = tType;
         setFilteredRecords(null);
         double totalSum = 0;
         if(tableType == 0){
@@ -192,7 +190,7 @@ public class BudgetMain {
                 case "00":
                     break;
                 default:
-                    System.out.println("Įvestas neatpažintas simbolis");;
+                    System.out.println(Strings.ENTEREDUNKNOWNSYMBOL.getLabel());
                     break;
             }
         }

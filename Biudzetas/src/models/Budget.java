@@ -164,16 +164,16 @@ public class Budget {
     }
 
     public Record updateRecord(int updateID) {
-        Record record = null;
-        for (Record value : records) {
-            if (value.getId() == updateID) {
-                record = value;
+        Record updatedRecord = null;
+        for (Record record : records) {
+            if (record.getId() == updateID) {
+                updatedRecord = record;
             }
         }
-        if(record != null){
-            record = updateRecord(record);
+        if(updatedRecord != null){
+            updatedRecord = updateRecord(updatedRecord);
         }
-        return record;
+        return updatedRecord;
     }
 
     public Record updateRecord(Record record){

@@ -25,7 +25,7 @@ public class WriteToFile {
                 bufferedWriter.flush();
             }
             bufferedWriter.close();
-            System.out.printf("Duomenys išsaugoti faile %s%n", file.getAbsolutePath());
+            System.out.printf("Duomenys išsaugoti faile %s%n%n", file.getAbsolutePath());
         }
         catch (IOException ioException){
             System.out.printf("!!! Nepavyko išsaugoti į failą (%s) !!!%n", Strings.DATAFILENAME.getLabel());

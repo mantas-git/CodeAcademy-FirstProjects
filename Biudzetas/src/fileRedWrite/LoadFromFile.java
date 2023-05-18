@@ -34,6 +34,7 @@ public class LoadFromFile {
                 stringFromFile = bufferedReader.readLine();
             }
             bufferedReader.close();
+            System.out.printf("Duomenys įkelti iš failo %s%n", Strings.DATAFILENAME.getLabel());
         }
         catch (FileNotFoundException fileNotFoundException){
             System.out.println("!!! Nepavyko rasti failo !!!");
@@ -41,8 +42,8 @@ public class LoadFromFile {
         catch (IOException io){
             System.out.println("!!! Nepavyko nuskaityti iš failo !!!");
         }
-        System.out.printf("Duomenys įkelti iš failo %s%n", Strings.DATAFILENAME.getLabel());
-        
+
+
     }
 
     private Record crateRecord(String stringFromFile, int lineNumber) {
@@ -55,7 +56,7 @@ public class LoadFromFile {
             int categorie = Integer.parseInt(stringsInLine[stringId++]);
             double amount = Double.parseDouble(stringsInLine[stringId++].replace(",", "."));
             String comment = stringsInLine[stringId++];
-            Boolean paymentMethod = (stringsInLine[stringId].equals("true") ? true : false);
+            boolean paymentMethod = (stringsInLine[stringId].equals("true"));
             if (amount < 0) {
                 record = new OutgoingRecord(id, localDateTime, categorie, amount, paymentMethod, comment);
             } else {
@@ -65,9 +66,6 @@ public class LoadFromFile {
         catch (Exception e){
             System.out.println("Nepavyko nuskaityti eilutės nr.: " + lineNumber);
         }
-        finally {
-            return record;
-        }
-        
+        return record;
     }
 }

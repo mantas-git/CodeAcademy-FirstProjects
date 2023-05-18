@@ -44,11 +44,7 @@ public class Record {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Record)) return false;
-        Record that = (Record) o;
-        return id == that.id;
+    public boolean equals(Object obj) {
+        return super.equals(obj);
     }
-
 }
