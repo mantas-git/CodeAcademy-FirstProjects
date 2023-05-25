@@ -1,6 +1,7 @@
 package recordModels;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Record {
     protected int id;
@@ -44,7 +45,15 @@ public class Record {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Record)) return false;
+        Record record = (Record) o;
+        return id == record.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

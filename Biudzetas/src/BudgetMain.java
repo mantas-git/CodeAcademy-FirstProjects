@@ -7,6 +7,7 @@ import recordModels.IncomeRecord;
 import recordModels.OutgoingRecord;
 import recordModels.Record;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ public class BudgetMain {
 
     public static void main(String[] args) {
         b1 = new Budget();
-//        b1.fillData();
+        b1.fillData();
         scanner = new Scanner(System.in);
         String userChoice = "";
         while(!userChoice.equals("00")){

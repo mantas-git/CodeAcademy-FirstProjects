@@ -13,7 +13,6 @@ import java.util.*;
 
 public class Budget {
     private ArrayList<Record> records = new ArrayList<>();
-
     private ArrayList<Record> filteredRecords = new ArrayList<>();
     private int counter = 1;
     private final Scanner scannerB = new Scanner(System.in);
@@ -151,16 +150,16 @@ public class Budget {
     }
 
     public Record removeRecord(int deleteID) {
-        Record record = null;
+        Record record;
         Iterator<Record> recordIterator = records.iterator();
         while (recordIterator.hasNext()) {
             record = recordIterator.next();
             if(record.getId() == (deleteID)){
                 recordIterator.remove();
-                break;
+                return record;
             }
         }
-        return record;
+        return null;
     }
 
     public Record updateRecord(int updateID) {
@@ -177,8 +176,8 @@ public class Budget {
     }
 
     public Record updateRecord(Record record){
-        String editOrSkip = " [1] - redaguoti";
-        String type = ((record instanceof IncomeRecord) ? "pajamų" : "išlaidų");
+        String editOrSkip = "\t[1] - redaguoti\t[enter] - praleisti";
+        String type = ((record instanceof IncomeRecord) ? Strings.INCOMINGS.getLabel() : Strings.OUTGOINGS.getLabel());
         System.out.printf("Dabartinis įvestas laikas: %s %n" , record.getProcessDate().format(dateTimeFormatter));
         System.out.println(editOrSkip);
         String userChoise = scannerB.nextLine();
