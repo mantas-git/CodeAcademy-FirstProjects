@@ -7,20 +7,19 @@ import recordModels.IncomeRecord;
 import recordModels.OutgoingRecord;
 import recordModels.Record;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class BudgetMain {
-    private static Budget b1;
+    private static Budget budget;
     private static Scanner scanner;
     private static int tableType = 0; //0 - bendras, 1 - pajamos, 2 - išlaidos
 
     public static void main(String[] args) {
-        b1 = new Budget();
-        b1.fillData();
+        budget = new Budget();
+        budget.fillData();
         scanner = new Scanner(System.in);
         String userChoice = "";
         while(!userChoice.equals("00")){
@@ -28,10 +27,10 @@ public class BudgetMain {
             userChoice = scanner.nextLine();
             switch (userChoice){
                 case "1":
-                    b1.addIncomeStatement();
+                    budget.addIncomeStatement();
                     break;
                 case "2":
-                    b1.addOutgoingStatement();
+                    budget.addOutgoingStatement();
                     break;
                 case "3":
                     printTable(0);
@@ -161,12 +160,12 @@ public class BudgetMain {
     }
 
     private static void printDataLine(Record record){
-        System.out.print(Table.getDataLine(b1, record));
+        System.out.print(Table.getDataLine(budget, record));
     }
 
     private static void printSmallTable(Record record){
         System.out.print(Table.getVerticalLine()
-                + Table.getDataLine(b1, record)
+                + Table.getDataLine(budget, record)
                 + Table.getVerticalLine());
     }
 
@@ -272,54 +271,54 @@ public class BudgetMain {
     }
 
     private static void loadDataFromFile(){
-        LoadFromFile loadFromFile = new LoadFromFile(b1);
+        LoadFromFile loadFromFile = new LoadFromFile(budget);
         loadFromFile.loadFromFile();
     }
 
     private static void printDataTableToFile(){
         WriteToFile writeToFile = new WriteToFile();
         if(getFilteredRecords() == null) {
-            writeToFile.printToFile(b1, tableType, getRecords());
+            writeToFile.printToFile(budget, tableType, getRecords());
         }
         else{
-            writeToFile.printToFile(b1, tableType, getFilteredRecords());
+            writeToFile.printToFile(budget, tableType, getFilteredRecords());
         }
     }
 
     private static ArrayList<Record> createFilteredRecord() {
-        return b1.createFilteredRecords();
+        return budget.createFilteredRecords();
     }
 
     public static void setFilteredRecords(ArrayList<Record> records){
-        b1.setFilteredRecords(records);
+        budget.setFilteredRecords(records);
     }
 
     private static Record updateRecord(int i) {
-        return b1.updateRecord(i);
+        return budget.updateRecord(i);
     }
 
     private static Record removeRecord(int i) {
-        return b1.removeRecord(i);
+        return budget.removeRecord(i);
     }
 
     private static ArrayList<Record> getRecords(){
-        return b1.getRecords();
+        return budget.getRecords();
     }
 
     private static ArrayList<Record> getFilteredRecords(){
-        return b1.getFilteredRecords();
+        return budget.getFilteredRecords();
     }
 
     private static ArrayList<IncomeRecord> getIncomeRecords(){
-        return b1.getIncomeRecords();
+        return budget.getIncomeRecords();
     }
 
     private static ArrayList<OutgoingRecord> getOutgoingStatements(){
-        return b1.getOutgoingRecords();
+        return budget.getOutgoingRecords();
     }
 
     private static DateTimeFormatter getDateTimeFormatter(){
-        return b1.getDateTimeFormatter();
+        return budget.getDateTimeFormatter();
     }
 
 }
